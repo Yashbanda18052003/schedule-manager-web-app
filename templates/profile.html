@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+  
+  <div class="form-container fade-in">
+  <form method="POST">
+    <h2 class="text-center mb-4">👤 My Profile</h2>
+    <div class="row g-3">
+      <!-- Name (readonly) -->
+      <div class="col-md-6">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-control" value="{{ user.name }}" readonly>
+      </div>
+
+      <!-- Email (readonly) -->
+      <div class="col-md-6">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" value="{{ user.email }}" readonly>
+      </div>
+
+      <!-- Mobile -->
+      <div class="col-md-6">
+        <label class="form-label">Mobile Number</label>
+        <input type="text" name="mobile" class="form-control" value="{{ user.mobile or '' }}">
+      </div>
+
+      <!-- Country -->
+      <div class="col-md-6">
+        <label class="form-label">Country</label>
+        <input type="text" name="country" class="form-control" value="{{ user.country or '' }}">
+      </div>
+
+      <!-- State -->
+      <div class="col-md-6">
+        <label class="form-label">State</label>
+        <input type="text" name="state" class="form-control" value="{{ user.state or '' }}">
+      </div>
+
+      <!-- DOB -->
+      <div class="col-md-6">
+        <label class="form-label">Date of Birth</label>
+        <input type="date" name="dob" class="form-control" value="{{ user.dob }}">
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-primary w-100">💾 Save Changes</button>
+    </div>
+  </form>
+  </div>
+
+
+{% endblock %}

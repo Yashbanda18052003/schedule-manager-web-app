@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-5">📅 Your Schedules</h2>
+
+    {% if schedules %}
+    <div class="row g-4">
+        {% for schedule in schedules %}
+        <div class="col-md-6">
+            <div class="border rounded p-4 shadow-sm" style="background: transparent;">
+                <h4 class="mb-2">{{ schedule.title }}</h4>
+                <p>{{ schedule.description or 'No description provided.' }}</p>
+                <p><strong>Date:</strong> {{ schedule.date.strftime('%d %B %Y') }}</p>
+                <p><strong>Time:</strong> {{ schedule.time.strftime('%I:%M %p') }}</p>
+                <p><strong>Reminder:</strong> {{ 'Yes' if schedule.reminder else 'No' }}</p>
+
+                <!-- 🔘 Buttons -->
+                <div class="mt-4 d-flex gap-3 align-items-center">
+                    <!-- ✏️ Edit -->
+                    <a href="{{ url_for('update_schedule', schedule_id=schedule.id) }}" 
+                       class="btn btn-primary px-3 py-2">
+                        ✏️ Edit
+                    </a>
+
+                    <!-- 🗑️ Delete -->
+                    <form action="{{ url_for('delete_schedule', schedule_id=schedule.id) }}" method="POST" class="m-0 p-0">
+                        <button type="submit" class="btn btn-danger px-3 py-2">
+                            🗑️ Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p class="text-center text-muted">You haven't added any schedules yet.</p>
+    {% endif %}
+</div>
+
+<!-- ⬅️ Back Button -->
+<div class="text-center mt-5">
+    <a href="{{ url_for('home') }}" class="btn btn-dark px-4 py-2 rounded-pill">← Back to Home</a>
+</div>
+{% endblock %}

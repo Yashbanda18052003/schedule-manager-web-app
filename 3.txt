@@ -1,0 +1,1472 @@
+from flask import Flask, render_template, request, redirect,flash,url_for
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager,login_user,login_required,logout_user,UserMixin,current_user
+from werkzeug.security import generate_password_hash,check_password_hash
+from models import db, User
+from datetime import datetime
+
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'yash_super_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+
+
+# Initialize DB & Login manager
+db.init_app(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+# Home Page
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    return render_template('home.html')
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        current_user.mobile = request.form['mobile']
+        current_user.country = request.form['country']
+        current_user.state = request.form['state']
+
+        dob_input = request.form['dob']
+        if dob_input:
+            try:
+                current_user.dob = datetime.strptime(dob_input, '%Y-%m-%d').date()
+            except ValueError:
+                flash("Invalid date format for DOB.", "danger")
+
+        db.session.commit()
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for('profile'))
+
+    return render_template('profile.html', user=current_user)
+
+
+@app.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    if request.method == 'POST':
+        current_user.mobile = request.form['mobile']
+        current_user.country = request.form['country']
+        current_user.state = request.form['state']
+
+        dob_input = request.form['dob']
+        if dob_input:
+            try:
+                current_user.dob = datetime.strptime(dob_input, '%Y-%m-%d').date()
+            except ValueError:
+                flash("Invalid date format for DOB.", "danger")
+
+        db.session.commit()
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for('view_profile'))
+
+    return render_template('profile.html', user=current_user)
+
+
+@app.route('/profile/view')
+@login_required
+def profile_view():
+    # If you have schedules, fetch them here later
+    return render_template('profile_view.html', user=current_user)
+
+
+
+# Login Page
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            flash('✅ Logged in successfully!', 'success')
+            return redirect('/')
+        else:
+            flash('❌ Invalid email or password.', 'danger')
+            return redirect('/login')
+
+    return render_template('login.html')
+
+
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+    logout_user()
+    return redirect('/login')
+
+   
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash('⚠️ Email already exists. Please login or use another email.', 'warning')
+            return redirect('/signup')
+
+        hashed_password = generate_password_hash(password)
+        user = User(name=name, email=email, password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        flash('✅ Account created! Please login.', 'success')
+        return redirect('/login')
+
+    return render_template('signup.html')
+
+
+
+
+# Add Schedule Page
+@app.route('/add', methods=['GET', 'POST'])
+def add_schedule():
+    if not current_user.is_authenticated:
+        flash("⚠️ Please login before adding a schedule.", "danger")
+        return redirect(url_for('home'))
+
+    # Your existing add schedule logic here
+    if request.method == "POST":
+        # Save schedule logic
+        pass
+   
+    return render_template('add_schedule.html')
+
+# View Schedule Page
+@app.route('/view', methods=['GET', 'POST'])
+def view_schedule():
+    return render_template('view_schedule.html')
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from flask import Flask, render_template, request, redirect, flash, url_for
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from models import db, User,Schedule
+from datetime import datetime,timedelta
+from flask_mail import Mail, Message
+from flask_apscheduler import APScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
+
+
+
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'yash_super_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+
+# === Email Configuration ===
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'schedulemanager.notify@gmail.com'      # your Gmail
+app.config['MAIL_PASSWORD'] = 'qifx crmd amct daog'         # your App Password
+app.config['MAIL_DEFAULT_SENDER'] = 'schedulemanager.notify@gmail.com'   # sender email
+
+
+
+# Initialize DB & Login manager
+db.init_app(app)
+mail = Mail(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+# === Home Page ===
+@app.route('/')
+def home():
+    # Logged in
+    if current_user.is_authenticated:
+        schedules = Schedule.query.filter_by(user_id=current_user.id).order_by(Schedule.date, Schedule.time).limit(3).all()
+        return render_template('home.html', schedules=schedules)
+    return render_template('home.html')
+
+
+
+# === Profile Form ===
+@app.route('/profile', methods=['GET', 'POST'])
+@app.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        current_user.mobile = request.form.get('mobile')
+        current_user.country = request.form.get('country')
+        current_user.state = request.form.get('state')
+
+        dob_input = request.form.get('dob')
+        if dob_input:
+            try:
+                current_user.dob = datetime.strptime(dob_input, '%Y-%m-%d').date()
+            except ValueError:
+                flash("Invalid date format for DOB.", "danger")
+                return redirect(url_for('profile'))
+
+        db.session.commit()
+        flash("✅ Profile updated successfully!", "success")
+        return redirect(url_for('profile_view'))
+
+    return render_template('profile.html', user=current_user)
+
+
+# === View Profile Details ===
+@app.route('/profile/view')
+@login_required
+def profile_view():
+    return render_template('profile_view.html', user=current_user)
+
+
+@app.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    if request.method == 'POST':
+        current_user.mobile = request.form['mobile']
+        current_user.country = request.form['country']
+        current_user.state = request.form['state']
+
+        dob_input = request.form['dob']
+        if dob_input:
+            try:
+                current_user.dob = datetime.strptime(dob_input, '%Y-%m-%d').date()
+            except ValueError:
+                flash("Invalid date format for DOB.", "danger")
+
+        db.session.commit()
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for('profile_view'))
+
+    return render_template('profile.html', user=current_user)
+
+
+
+
+# === Login ===
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            flash('✅ Logged in successfully!', 'success')
+            return redirect('/')
+        else:
+            flash('❌ Invalid email or password.', 'danger')
+            return redirect('/login')
+
+    return render_template('login.html')
+
+
+# === Logout ===
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/login')
+
+
+# === Signup ===
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash('⚠️ Email already exists. Please login or use another email.', 'warning')
+            return redirect('/signup')
+
+        hashed_password = generate_password_hash(password)
+        user = User(name=name, email=email, password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        flash('✅ Account created! Please login.', 'success')
+        return redirect('/login')
+
+    return render_template('signup.html')
+
+
+
+# === Add Schedule Route ===
+scheduler = BackgroundScheduler()
+scheduler.start()
+
+@app.route('/add', methods=['GET', 'POST'])
+@login_required
+def add_schedule():
+    if request.method == "POST":
+        title = request.form['title']
+        description = request.form['description']
+        date = request.form['date']
+        time = request.form['time']
+        reminder = 'reminder' in request.form
+
+        try:
+            date_obj = datetime.strptime(date, '%Y-%m-%d').date()
+            time_obj = datetime.strptime(time, '%H:%M').time()
+
+            new_schedule = Schedule(
+                title=title,
+                description=description,
+                date=date_obj,
+                time=time_obj,
+                reminder=reminder,
+                user_id=current_user.id
+            )
+
+            db.session.add(new_schedule)
+            db.session.commit()
+
+            # ✅ Send email if reminder is checked
+            if reminder and current_user.email:
+                send_reminder_email(current_user.email, new_schedule)
+
+            flash("✅ Schedule added successfully!", "success")
+            return redirect(url_for('view_schedules'))
+
+        except Exception as e:
+            flash(f"❌ Error saving schedule: {str(e)}", "danger")
+            return redirect(url_for('add_schedule'))
+
+    return render_template('add_schedule.html')
+
+
+
+
+# === View Schedule Page ===
+@app.route('/schedules')
+@login_required
+def view_schedules():
+    schedules = Schedule.query.filter_by(user_id=current_user.id).order_by(Schedule.date, Schedule.time).all()
+    return render_template('view_schedules.html', schedules=schedules)
+
+
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_schedule(id):
+    schedule = Schedule.query.get_or_404(id)
+
+    if schedule.user_id != current_user.id:
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        schedule.title = request.form['title']
+        schedule.description = request.form['description']
+        schedule.date = datetime.strptime(request.form['date'], '%Y-%m-%d').date()
+        schedule.time = datetime.strptime(request.form['time'], '%H:%M').time()
+        schedule.reminder = 'reminder' in request.form
+
+        db.session.commit()
+        flash("✅ Schedule updated successfully!", "success")
+        return redirect(url_for('view_schedules'))
+
+    return render_template('edit_schedule.html', schedule=schedule)
+
+@app.route('/schedule/update/<int:schedule_id>', methods=['GET', 'POST'])
+@login_required
+def update_schedule(schedule_id):
+    schedule = Schedule.query.get_or_404(schedule_id)
+
+    if schedule.user_id != current_user.id:
+        flash("You are not authorized to edit this schedule.", "danger")
+        return redirect(url_for('view_schedules'))
+
+    if request.method == 'POST':
+        schedule.title = request.form['title']
+        schedule.description = request.form['description']
+        schedule.date = datetime.strptime(request.form['date'], '%Y-%m-%d').date()
+        schedule.time = datetime.strptime(request.form['time'], '%H:%M').time()
+        schedule.reminder = 'reminder' in request.form
+
+        db.session.commit()
+        flash("✅ Schedule updated successfully!", "success")
+        return redirect(url_for('view_schedules'))
+
+    return render_template('edit_schedule.html', schedule=schedule)
+
+
+
+@app.route('/schedule/delete/<int:schedule_id>', methods=['POST'])
+@login_required
+def delete_schedule(schedule_id):
+    schedule = Schedule.query.filter_by(id=schedule_id, user_id=current_user.id).first()
+    if schedule:
+        db.session.delete(schedule)
+        db.session.commit()
+        flash("🗑️ Schedule deleted successfully!", "success")
+    else:
+        flash("❌ Schedule not found or unauthorized.", "danger")
+    return redirect(url_for('view_schedules'))
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+
+def send_reminder_email(to_email, user_name, schedule):
+    subject = "⏰ Schedule Reminder"
+    body = f"""Hi {user_name},
+
+This is a reminder for your schedule:
+
+Title: {schedule.title}
+Date: {schedule.date.strftime('%d %B %Y')}
+Time: {schedule.time.strftime('%I:%M %p')}
+Description: {schedule.description or 'No description provided.'}
+
+Thanks,
+Schedule Manager
+"""
+    msg = Message(subject, recipients=[to_email], body=body)
+    mail.send(msg)
+
+
+# === Scheduler Setup ===
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+
+
+
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from flask import Flask, render_template, request, redirect, flash, url_for
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from models import db, User, Schedule
+from datetime import datetime, timedelta
+from flask_mail import Mail, Message
+from flask_apscheduler import APScheduler
+
+# ========== Flask App & Config ==========
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'yash_super_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Email Config
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'schedulemanager.notify@gmail.com'  # your email
+app.config['MAIL_PASSWORD'] = 'tmlp ltug slif zcoi'  # your app password
+app.config['MAIL_DEFAULT_SENDER'] = 'schedulemanager.notify@gmail.com'
+
+# Initialize
+db.init_app(app)
+mail = Mail(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+# Scheduler
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+
+# ========== User Loader ==========
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+# ========== Email Reminder ==========
+def send_reminder_email(to_email, user_name, schedule_title, schedule_date, schedule_time, schedule_description):
+    with app.app_context():  # ✅ ADD THIS LINE
+        subject = "⏰ Schedule Reminder"
+        body = f"""Hi {user_name},
+
+This is a reminder for your schedule:
+
+Title: {schedule_title}
+Date: {schedule_date.strftime('%d %B %Y')}
+Time: {schedule_time.strftime('%I:%M %p')}
+Description: {schedule_description or 'No description provided.'}
+
+Thanks,
+Schedule Manager
+"""
+        msg = Message(subject, recipients=[to_email], body=body)
+        mail.send(msg)
+
+# ========== Home ==========
+@app.route('/')
+def home():
+    if current_user.is_authenticated:
+        schedules = Schedule.query.filter_by(user_id=current_user.id).order_by(Schedule.date, Schedule.time).limit(3).all()
+        return render_template('home.html', schedules=schedules)
+    return render_template('home.html')
+
+# ========== Profile ==========
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        current_user.mobile = request.form.get('mobile')
+        current_user.country = request.form.get('country')
+        current_user.state = request.form.get('state')
+        dob_input = request.form.get('dob')
+        if dob_input:
+            try:
+                current_user.dob = datetime.strptime(dob_input, '%Y-%m-%d').date()
+            except ValueError:
+                flash("Invalid date format for DOB.", "danger")
+        db.session.commit()
+        flash("✅ Profile updated successfully!", "success")
+        return redirect(url_for('profile_view'))
+    return render_template('profile.html', user=current_user)
+
+@app.route('/profile/view')
+@login_required
+def profile_view():
+    return render_template('profile_view.html', user=current_user)
+
+# ========== Auth ==========
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            flash('✅ Logged in successfully!', 'success')
+            return redirect('/')
+        flash('❌ Invalid email or password.', 'danger')
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/login')
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        password = generate_password_hash(request.form['password'])
+        if User.query.filter_by(email=email).first():
+            flash('⚠️ Email already exists.', 'warning')
+            return redirect('/signup')
+        db.session.add(User(name=name, email=email, password=password))
+        db.session.commit()
+        flash('✅ Account created! Please login.', 'success')
+        return redirect('/login')
+    return render_template('signup.html')
+
+# ========== Add Schedule ==========
+@app.route('/add', methods=['GET', 'POST'])
+@login_required
+def add_schedule():
+    if request.method == "POST":
+        title = request.form['title']
+        description = request.form['description']
+        date = datetime.strptime(request.form['date'], '%Y-%m-%d').date()
+        time = datetime.strptime(request.form['time'], '%H:%M').time()
+        reminder = 'reminder' in request.form
+
+        schedule = Schedule(
+            title=title,
+            description=description,
+            date=date,
+            time=time,
+            reminder=reminder,
+            user_id=current_user.id
+        )
+        db.session.add(schedule)
+        db.session.commit()
+
+        # === Schedule the Reminder
+        if reminder:
+            schedule_datetime = datetime.combine(date, time) - timedelta(minutes=1)  # 1 min before
+            job_id = f"reminder_{schedule.id}"
+
+            scheduler.add_job(
+                func=send_reminder_email,
+                trigger='date',
+                run_date=schedule_datetime,
+                args=[
+                    current_user.email,
+                    current_user.name,
+                    schedule.title,
+                    schedule.date,
+                    schedule.time,
+                    schedule.description
+                ],
+                id=job_id,
+                replace_existing=True
+            )
+
+        flash("✅ Schedule added successfully!", "success")
+        return redirect(url_for('view_schedules'))
+    return render_template('add_schedule.html')
+
+# ========== View, Edit, Delete ==========
+@app.route('/schedules')
+@login_required
+def view_schedules():
+    schedules = Schedule.query.filter_by(user_id=current_user.id).order_by(Schedule.date, Schedule.time).all()
+    return render_template('view_schedules.html', schedules=schedules)
+
+
+@app.route('/schedule/update/<int:schedule_id>', methods=['GET', 'POST'])
+@login_required
+def update_schedule(schedule_id):
+    schedule = Schedule.query.get_or_404(schedule_id)
+
+    if schedule.user_id != current_user.id:
+        flash("You are not authorized to edit this schedule.", "danger")
+        return redirect(url_for('view_schedules'))
+
+    if request.method == 'POST':
+        schedule.title = request.form['title']
+        schedule.description = request.form['description']
+        schedule.date = datetime.strptime(request.form['date'], '%Y-%m-%d').date()
+        schedule.time = datetime.strptime(request.form['time'], '%H:%M').time()
+        schedule.reminder = 'reminder' in request.form
+
+        db.session.commit()
+        flash("✅ Schedule updated successfully!", "success")
+        return redirect(url_for('view_schedules'))
+
+    return render_template('edit_schedule.html', schedule=schedule)
+
+
+
+@app.route('/schedule/delete/<int:schedule_id>', methods=['POST'])
+@login_required
+def delete_schedule(schedule_id):
+    schedule = Schedule.query.filter_by(id=schedule_id, user_id=current_user.id).first()
+    if schedule:
+        db.session.delete(schedule)
+        db.session.commit()
+        flash("🗑️ Schedule deleted.", "success")
+    else:
+        flash("❌ Unauthorized or not found.", "danger")
+    return redirect(url_for('view_schedules'))
+
+# ========== About & Contact ==========
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+
+
+@app.route('/test_email')
+def test_email():
+    msg = Message('Test Email',
+                  recipients=['bandayash11@example.com'],
+                  body='This is a test email from Flask.')
+    try:
+        mail.send(msg)
+        return "✅ Email sent successfully!"
+    except Exception as e:
+        return f"❌ Error: {str(e)}"
+
+
+
+
+# ========== Start App ==========
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from flask import Flask, render_template, request, redirect, flash, url_for
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from models import db, User, Schedule
+from datetime import datetime, timedelta
+from flask_mail import Mail, Message
+from flask_apscheduler import APScheduler
+
+# ========== Original Flask Config Exactly As You Had It ==========
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'yash_super_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Original Email Config (Not Modified)
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'schedulemanager.notify@gmail.com'
+app.config['MAIL_PASSWORD'] = ''
+app.config['MAIL_DEFAULT_SENDER'] = 'schedulemanager.notify@gmail.com'
+
+# Original Initialization (Not Modified)
+db.init_app(app)
+mail = Mail(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+
+# ========== Original Utility Functions Exactly As You Had Them ==========
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+def send_reminder_email(user_id, schedule_id):
+    with app.app_context():
+        user = User.query.get(user_id)
+        schedule = Schedule.query.get(schedule_id)
+
+        if not user or not schedule:
+            return  # Skip if not found
+
+        subject = "⏰ Schedule Reminder"
+        body = f"""Hi {user.name},
+
+This is a reminder for your schedule:
+
+Title: {schedule.title}
+Date: {schedule.date.strftime('%d %B %Y')}
+Time: {schedule.time.strftime('%I:%M %p')}
+Description: {schedule.description or 'No description provided.'}
+
+Thanks,
+Schedule Manager
+"""
+        msg = Message(subject, recipients=[user.email], body=body)
+        mail.send(msg)
+        print(f"Sending reminder to {user.email} for schedule '{schedule.title}'")
+
+
+# ========== Original Routes Exactly As You Had Them ==========
+@app.route('/')
+def home():
+    if current_user.is_authenticated:
+        schedules = Schedule.query.filter_by(user_id=current_user.id).order_by(Schedule.date, Schedule.time).limit(3).all()
+        return render_template('home.html', schedules=schedules)
+    return render_template('home.html')
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        current_user.mobile = request.form.get('mobile')
+        current_user.country = request.form.get('country')
+        current_user.state = request.form.get('state')
+        dob_input = request.form.get('dob')
+        if dob_input:
+            try:
+                current_user.dob = datetime.strptime(dob_input, '%Y-%m-%d').date()
+            except ValueError:
+                flash("Invalid date format for DOB.", "danger")
+        db.session.commit()
+        flash("✅ Profile updated successfully!", "success")
+        return redirect(url_for('profile_view'))
+    return render_template('profile.html', user=current_user)
+
+@app.route('/profile/view')
+@login_required
+def profile_view():
+    return render_template('profile_view.html', user=current_user)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            flash('✅ Logged in successfully!', 'success')
+            return redirect('/')
+        flash('❌ Invalid email or password.', 'danger')
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/login')
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        password = generate_password_hash(request.form['password'])
+        if User.query.filter_by(email=email).first():
+            flash('⚠️ Email already exists.', 'warning')
+            return redirect('/signup')
+        db.session.add(User(name=name, email=email, password=password))
+        db.session.commit()
+        flash('✅ Account created! Please login.', 'success')
+        return redirect('/login')
+    return render_template('signup.html')
+
+@app.route('/add', methods=['GET', 'POST'])
+@login_required
+def add_schedule():
+    if request.method == "POST":
+        title = request.form['title']
+        description = request.form['description']
+        date = datetime.strptime(request.form['date'], '%Y-%m-%d').date()
+        time = datetime.strptime(request.form['time'], '%H:%M').time()
+        reminder = 'reminder' in request.form
+
+        schedule = Schedule(
+            title=title,
+            description=description,
+            date=date,
+            time=time,
+            reminder=reminder,
+            user_id=current_user.id
+        )
+        db.session.add(schedule)
+        db.session.commit()
+
+        if reminder:
+         schedule_datetime = datetime.combine(date, time) - timedelta(minutes=1)
+         job_id = f"reminder_{schedule.id}"
+
+        scheduler.add_job(
+             func=send_reminder_email,
+             trigger='date',
+             run_date=schedule_datetime,
+             args=[current_user.id, schedule.id],
+             id=job_id,
+             replace_existing=True
+    )
+
+        flash("✅ Schedule added successfully!", "success")
+        return redirect(url_for('view_schedules'))
+    return render_template('add_schedule.html')
+
+@app.route('/schedules')
+@login_required
+def view_schedules():
+    schedules = Schedule.query.filter_by(user_id=current_user.id).order_by(Schedule.date, Schedule.time).all()
+    return render_template('view_schedules.html', schedules=schedules)
+
+@app.route('/schedule/update/<int:schedule_id>', methods=['GET', 'POST'])
+@login_required
+def update_schedule(schedule_id):
+    schedule = Schedule.query.get_or_404(schedule_id)
+
+    if schedule.user_id != current_user.id:
+        flash("You are not authorized to edit this schedule.", "danger")
+        return redirect(url_for('view_schedules'))
+
+    if request.method == 'POST':
+        schedule.title = request.form['title']
+        schedule.description = request.form['description']
+        schedule.date = datetime.strptime(request.form['date'], '%Y-%m-%d').date()
+        schedule.time = datetime.strptime(request.form['time'], '%H:%M').time()
+        schedule.reminder = 'reminder' in request.form
+
+        db.session.commit()
+        flash("✅ Schedule updated successfully!", "success")
+        return redirect(url_for('view_schedules'))
+
+    return render_template('edit_schedule.html', schedule=schedule)
+
+@app.route('/schedule/delete/<int:schedule_id>', methods=['POST'])
+@login_required
+def delete_schedule(schedule_id):
+    schedule = Schedule.query.filter_by(id=schedule_id, user_id=current_user.id).first()
+    if schedule:
+        db.session.delete(schedule)
+        db.session.commit()
+        flash("🗑️ Schedule deleted.", "success")
+    else:
+        flash("❌ Unauthorized or not found.", "danger")
+    return redirect(url_for('view_schedules'))
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+# ========== Preserved Test Email Route With Debugging ==========
+@app.route('/test_email')
+def test_email():
+    """Original functionality preserved with better error handling"""
+    msg = Message('Test Email from Your App',
+                 recipients=['bandayash11@gmail.com'],  # Using your real email
+                 body='This is a test email from your Flask application.')
+    try:
+        mail.send(msg)
+        return "✅ Email sent successfully! Check your inbox (and spam folder)"
+    except Exception as e:
+        return f"❌ Email failed: {str(e)} - Verify Gmail settings at https://myaccount.google.com/security"
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)

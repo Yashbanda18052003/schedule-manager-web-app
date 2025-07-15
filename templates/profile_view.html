@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-center align-items-center">
+  <div class="container profile-view-container fade-in">
+  <div class="profile-card">
+<h2>Profile Details</h2>
+    <!-- Profile Name -->
+  <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}">
+    <div class="text-center mb-3">
+      <h3>👤 {{ user.name }}</h3>
+    </div>
+
+    <!-- Profile Info Table -->
+    <div class="profile-info">
+      <div class="info-row">
+        <span class="label">📧 Email:</span>
+        <span class="value">{{ user.email }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">📱 Mobile:</span>
+        <span class="value">{{ user.mobile or "—" }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">🌐 Country:</span>
+        <span class="value">{{ user.country or "—" }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">🗺️ State:</span>
+        <span class="value">{{ user.state or "—" }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">📅 Date of Birth:</span>
+        <span class="value">{{ user.dob or "—" }}</span>
+      </div>
+    </div>
+
+    <!-- Edit Button -->
+    <div class="text-center mt-4">
+      <a href="{{ url_for('profile') }}" class="btn btn-primary">
+        ✏️ Edit Profile
+      </a>
+      <button type="submit" class="btn btn-danger">Delete My Account</button>
+      
+
+    </div>
+<a href="/" class="btn btn-outline-primary mb-4">← Back</a>
+  </div>
+  </form>
+</div>
+</div>
+
+{% endblock %}

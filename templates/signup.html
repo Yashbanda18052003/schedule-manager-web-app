@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-container fade-in">
+<form method="POST" action="/signup">
+    <h2>SIGN UP</h2>
+    <div class="mb-3">
+        <label>Name</label>
+        <input type="text" name="name" required class="form-control">
+    </div>
+    <div class="mb-3">
+        <label>Email</label>
+        <input type="email" name="email" required class="form-control">
+    </div>
+    <div class="mb-3">
+        <label>Password</label>
+        <input type="password" name="password" required class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Create Account</button>
+
+    <p>Already have an account? <a href="/login">Login here</a></p>
+</form>
+</div>
+
+{% endblock %}
+

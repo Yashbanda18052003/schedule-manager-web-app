@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Schedule Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">Schedule Manager</a>
+    <div class="d-flex">
+      <a class="btn btn-outline-light me-2" href="/add">Add Schedule</a>
+      {% if current_user.is_authenticated %}
+        <a class="btn btn-outline-light" href="/logout">Logout</a>
+      {% else %}
+        <a class="btn btn-outline-light" href="/signup">Signup</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<!-- ✅ Flash messages go here -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="container mt-3">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} text-center" role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- Page content -->
+<div class="container mt-4">
+  {% block content %}{% endblock %}
+</div>
+<script>
+  // Auto-dismiss flash messages after 5 seconds
+  setTimeout(function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+      alert.style.transition = "opacity 0.5s ease";
+      alert.style.opacity = '0';
+      setTimeout(() => alert.remove(), 500); // remove after fade
+    });
+  }, 5000); // 5 seconds
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+<div class="profile-card">
+  <div class="profile-header">👤 My Profile</div>
+
+  <form method="POST">
+    <div class="profile-form-grid">
+      <!-- Name (read-only) -->
+      <div class="mb-3">
+        <label for="name" class="form-label">Full Name</label>
+        <input type="text" class="form-control" id="name" value="{{ user.name }}" readonly>
+      </div>
+
+      <!-- Email (read-only) -->
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" value="{{ user.email }}" readonly>
+      </div>
+
+      <!-- Mobile -->
+      <div class="mb-3">
+        <label for="mobile" class="form-label">Mobile Number</label>
+        <input type="text" class="form-control" id="mobile" name="mobile" value="{{ user.mobile or '' }}">
+      </div>
+
+      <!-- Country -->
+      <div class="mb-3">
+        <label for="country" class="form-label">Country</label>
+        <input type="text" class="form-control" id="country" name="country" value="{{ user.country or '' }}">
+      </div>
+
+      <!-- State -->
+      <div class="mb-3">
+        <label for="state" class="form-label">State</label>
+        <input type="text" class="form-control" id="state" name="state" value="{{ user.state or '' }}">
+      </div>
+
+      <!-- DOB -->
+      <div class="mb-3">
+        <label for="dob" class="form-label">Date of Birth</label>
+        <input type="date" class="form-control" id="dob" name="dob" value="{{ user.dob }}">
+      </div>
+    </div>
+
+    <!-- Save Button -->
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-save">💾 Save Changes</button>
+    </div>
+  </form>
+</div>
+
+
+
+
+
+
+
+
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="profile-wrapper">
+  <div class="profile-title">👤 My Profile</div>
+
+  <form method="POST">
+    <div class="profile-grid">
+      <!-- Name (readonly) -->
+      <div class="mb-3">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-control" value="{{ user.name }}" readonly>
+      </div>
+
+      <!-- Email (readonly) -->
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" value="{{ user.email }}" readonly>
+      </div>
+
+      <!-- Mobile -->
+      <div class="mb-3">
+        <label class="form-label">Mobile Number</label>
+        <input type="text" name="mobile" class="form-control" value="{{ user.mobile or '' }}">
+      </div>
+
+      <!-- Country -->
+      <div class="mb-3">
+        <label class="form-label">Country</label>
+        <input type="text" name="country" class="form-control" value="{{ user.country or '' }}">
+      </div>
+
+      <!-- State -->
+      <div class="mb-3">
+        <label class="form-label">State</label>
+        <input type="text" name="state" class="form-control" value="{{ user.state or '' }}">
+      </div>
+
+      <!-- DOB -->
+      <div class="mb-3">
+        <label class="form-label">Date of Birth</label>
+        <input type="date" name="dob" class="form-control" value="{{ user.dob }}">
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-primary w-100">💾 Save Changes</button>
+    </div>
+  </form>
+</div>
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- templates/home.html -->
+ {% extends "base.html" %}
+{% block content %}
+<!-- <h2 class="mb-4">Welcome, {{ user_name }} 👋</h2>
+<p>Here's a quick look at your upcoming schedules:</p>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Reminder</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in schedules %}
+        <tr>
+            <td>{{ item.title }}</td>
+            <td>{{ item.date }}</td>
+            <td>{{ item.time }}</td>
+            <td>{{ "Yes" if item.reminder else "No" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table> -->
+
+<div class="container mt-5 text-center">
+
+  <!-- ✅ Greeting for everyone -->
+  {% if current_user.is_authenticated %}
+    <h2 class="mb-4 text-success">Welcome, {{ current_user.name }} 👋</h2>
+  {% else %}
+    <h2 class="mb-4">Welcome to Schedule Manager 👋</h2>
+    <p class="text-muted">🔒 Please <a href="/login">login</a> to view and manage your schedules.</p>
+  {% endif %}
+
+  <!-- ✅ Add Schedule button visible to everyone -->
+  <div class="mt-3 mb-4">
+    <a href="/add" class="btn btn-primary">➕ Add Schedule</a>
+  </div>
+
+  <!-- ✅ Show schedule table ONLY if user is logged in -->
+  {% if current_user.is_authenticated %}
+    <p class="text-start">Here's a quick look at your upcoming schedules:</p>
+
+    <table class="table table-hover text-start">
+      <thead class="table-light">
+        <tr>
+          <th>Title</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Reminder</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in schedules %}
+        <tr>
+          <td>{{ item.title }}</td>
+          <td>{{ item.date }}</td>
+          <td>{{ item.time }}</td>
+          <td>{{ "Yes" if item.reminder else "No" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+</div>
+
+{% endblock %} 
+
+
+
+
+
+
+
+
+
+{% extends "base.html" %}
+{% block content %}
+<div class="profile-wrapper">
+  <div class="profile-title">👤 My Profile Overview</div>
+
+  <div class="transparent-card mt-4">
+    <p><strong>Full Name:</strong> {{ user.name }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Mobile Number:</strong> {{ user.mobile or '—' }}</p>
+    <p><strong>Country:</strong> {{ user.country or '—' }}</p>
+    <p><strong>State:</strong> {{ user.state or '—' }}</p>
+    <p><strong>Date of Birth:</strong> {{ user.dob or '—' }}</p>
+
+    <div class="text-center mt-4">
+      <a href="{{ url_for('profile') }}" class="btn btn-primary">✏️ Update Profile</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container profile-view-container">
+  <div class="card profile-card">
+    <div class="card-body text-center">
+      <h3 class="mb-3">👤 {{ user.name }}</h3>
+
+      <div class="row mt-4 text-start justify-content-center">
+        <div class="col-md-6 col-sm-12 mb-3">
+          <strong>📧 Email:</strong>
+          <p>{{ user.email }}</p>
+        </div>
+        <div class="col-md-6 col-sm-12 mb-3">
+          <strong>📱 Mobile:</strong>
+          <p>{{ user.mobile or 'Not provided' }}</p>
+        </div>
+        <div class="col-md-6 col-sm-12 mb-3">
+          <strong>🌍 Country:</strong>
+          <p>{{ user.country or 'Not provided' }}</p>
+        </div>
+        <div class="col-md-6 col-sm-12 mb-3">
+          <strong>🏙️ State:</strong>
+          <p>{{ user.state or 'Not provided' }}</p>
+        </div>
+        <div class="col-md-6 col-sm-12 mb-3">
+          <strong>🎂 Date of Birth:</strong>
+          <p>{{ user.dob if user.dob else 'Not provided' }}</p>
+        </div>
+      </div>
+
+      <a href="{{ url_for('edit_profile') }}" class="btn btn-primary mt-3">✏️ Edit Profile</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+<div class="container d-flex justify-content-center align-items-center mt-5">
+  <div class="p-4 rounded" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); min-width: 400px;">
+    <div class="text-center mb-3">
+      <h3>👤 {{ user.name }}</h3>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-6"><strong>📧 Email:</strong></div>
+      <div class="col-6">{{ user.email }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-6"><strong>📱 Mobile:</strong></div>
+      <div class="col-6">{{ user.mobile or 'Not provided' }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-6"><strong>🌐 Country:</strong></div>
+      <div class="col-6">{{ user.country or 'Not provided' }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-6"><strong>🏙️ State:</strong></div>
+      <div class="col-6">{{ user.state or 'Not provided' }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-6"><strong>🗓️ Date of Birth:</strong></div>
+      <div class="col-6">{{ user.dob or 'Not provided' }}</div>
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">✏️ Edit Profile</a>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center">
+  <div class="profile-card">
+    <div class="text-center mb-3">
+      <h3>👤 {{ user.name }}</h3>
+    </div>
+
+    <div class="profile-row">
+      <div class="profile-label">📧 Email:</div>
+      <div class="profile-value">{{ user.email }}</div>
+    </div>
+    <div class="profile-row">
+      <div class="profile-label">📱 Mobile:</div>
+      <div class="profile-value">{{ user.mobile or 'Not provided' }}</div>
+    </div>
+    <div class="profile-row">
+      <div class="profile-label">🌐 Country:</div>
+      <div class="profile-value">{{ user.country or 'Not provided' }}</div>
+    </div>
+    <div class="profile-row">
+      <div class="profile-label">🏙️ State:</div>
+      <div class="profile-value">{{ user.state or 'Not provided' }}</div>
+    </div>
+    <div class="profile-row">
+      <div class="profile-label">🗓️ Date of Birth:</div>
+      <div class="profile-value">{{ user.dob or 'Not provided' }}</div>
+    </div>
+
+    <div class="text-center">
+      <a href="{{ url_for('edit_profile') }}" class="edit-btn">✏️ Edit Profile</a>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+{% extends "base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-center align-items-center">
+  <div class="profile-card text-center">
+
+    <!-- Profile Name -->
+    <div class="mb-2">
+      <h3>👤 {{ user.name }}</h3>
+    </div>
+
+    <!-- Profile Info Grid -->
+    <div class="row text-start">
+      <div class="col-6 mb-2">
+        <strong>📧 Email:</strong>
+      </div>
+      <div class="col-6 mb-2">
+        {{ user.email }}
+      </div>
+
+      <div class="col-6 mb-2">
+        <strong>📱 Mobile:</strong>
+      </div>
+      <div class="col-6 mb-2">
+        {{ user.mobile or "—" }}
+      </div>
+
+      <div class="col-6 mb-2">
+        <strong>🌐 Country:</strong>
+      </div>
+      <div class="col-6 mb-2">
+        {{ user.country or "—" }}
+      </div>
+
+      <div class="col-6 mb-2">
+        <strong>🗺️ State:</strong>
+      </div>
+      <div class="col-6 mb-2">
+        {{ user.state or "—" }}
+      </div>
+
+      <div class="col-6 mb-2">
+        <strong>📅 Date of Birth:</strong>
+      </div>
+      <div class="col-6 mb-2">
+        {{ user.dob if user.dob else "—" }}
+      </div>
+    </div>
+
+    <!-- Edit Button -->
+    <div class="mt-4">
+      <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+        ✏️ Edit Profile
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% extends 'base.html' %}
+{% block content %}
+
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">🗓️ Your Schedules</h2>
+
+    {% if schedules %}
+        <div class="row">
+            {% for schedule in schedules %}
+                <div class="col-md-6 mb-4">
+                    <div class="card glass-card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ schedule.title }}</h5>
+                            <p class="card-text">{{ schedule.description or 'No description' }}</p>
+                            <p><strong>Date:</strong> {{ schedule.date.strftime('%d %b %Y') }}</p>
+                            <p><strong>Time:</strong> {{ schedule.time.strftime('%I:%M %p') }}</p>
+                            <p><strong>Reminder:</strong> {{ 'Yes' if schedule.reminder else 'No' }}</p>
+
+                            <!-- Action buttons -->
+                            <div class="d-flex justify-content-between mt-3">
+                                <a href="{{ url_for('edit_schedule', id=schedule.id) }}" class="btn btn-sm btn-warning">✏️ Edit</a>
+                                <a href="{{ url_for('delete_schedule', id=schedule.id) }}" class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Are you sure you want to delete this schedule?')">🗑️ Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center text-muted">No schedules found.</p>
+    {% endif %}
+    
+    <!-- Back button at bottom -->
+    <div class="text-center mt-4">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">← Back to Home</a>
+    </div>
+</div>
+
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="confirmDeleteLabel">Confirm Deletion</h5>
+      </div>
+      <div class="modal-body text-center">
+        <p>⚠️ Are you sure you want to delete this schedule?</p>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <a id="confirmDeleteBtn" class="btn btn-danger">Yes, Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">🗓️ Your Schedules</h2>
+
+    {% if schedules %}
+        <div class="row">
+            {% for schedule in schedules %}
+                <div class="col-md-6 mb-4">
+                    <div class="card glass-card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ schedule.title }}</h5>
+                            <p class="card-text">{{ schedule.description or 'No description' }}</p>
+                            <p><strong>Date:</strong> {{ schedule.date.strftime('%d %b %Y') }}</p>
+                            <p><strong>Time:</strong> {{ schedule.time.strftime('%I:%M %p') }}</p>
+                            <p><strong>Reminder:</strong> {{ 'Yes' if schedule.reminder else 'No' }}</p>
+                            
+                            <!-- Edit & Delete buttons -->
+                            <a href="{{ url_for('edit_schedule', id=schedule.id) }}" class="btn btn-sm btn-primary">✏️ Edit</a>
+                            <button class="btn btn-danger btn-sm" onclick="setDeleteScheduleId({{ schedule.id }})"
+                                    data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center text-muted">No schedules found.</p>
+    {% endif %}
+</div>
+
+<!-- Back to Home Button -->
+<div class="text-center">
+    <a href="{{ url_for('home') }}" class="btn btn-secondary mt-3">← Back to Home</a>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="confirmDeleteLabel">Confirm Deletion</h5>
+      </div>
+      <div class="modal-body text-center">
+        <p>⚠️ Are you sure you want to delete this schedule?</p>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <a id="confirmDeleteBtn" class="btn btn-danger">Yes, Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script to update delete URL dynamically -->
+<script>
+  function setDeleteScheduleId(scheduleId) {
+    const deleteUrl = `/schedule/delete/${scheduleId}`;
+    document.getElementById('confirmDeleteBtn').setAttribute('href', deleteUrl);
+  }
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">🗓️ Your Schedules</h2>
+
+    {% if schedules %}
+        <div class="row">
+            {% for schedule in schedules %}
+                <div class="col-md-6 mb-4">
+                    <div class="card glass-card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ schedule.title }}</h5>
+                            <p class="card-text">{{ schedule.description or 'No description' }}</p>
+                            <p><strong>Date:</strong> {{ schedule.date.strftime('%d %b %Y') }}</p>
+                            <p><strong>Time:</strong> {{ schedule.time.strftime('%I:%M %p') }}</p>
+                            <p><strong>Reminder:</strong> {{ 'Yes' if schedule.reminder else 'No' }}</p>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex justify-content-between mt-3">
+                                <a href="{{ url_for('update_schedule', schedule_id=schedule.id) }}" class="btn btn-primary btn-sm">✏️ Edit</a>
+                                <button class="btn btn-danger btn-sm"
+                                        onclick="setDeleteScheduleId({{ schedule.id }})"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#confirmDeleteModal">
+                                    🗑️ Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center text-muted">No schedules found.</p>
+    {% endif %}
+</div>
+
+<!-- Back Button -->
+<div class="text-center mt-4">
+    <a href="{{ url_for('home') }}" class="btn btn-secondary">← Back to Home</a>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-header">
+        <h5 class="modal-title w-100" id="deleteModalLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this schedule?
+      </div>
+      <div class="modal-footer justify-content-center">
+        <form id="deleteForm" method="POST" action="">
+          <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        </form>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS to set form action dynamically -->
+<script>
+  function setDeleteScheduleId(id) {
+    document.getElementById('deleteForm').action = `/schedule/delete/${id}`;
+  }
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">🗓️ Your Schedules</h2>
+
+    {% if schedules %}
+        <div class="row">
+            {% for schedule in schedules %}
+                <div class="col-md-6 mb-4">
+                    <div class="card glass-card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ schedule.title }}</h5>
+                            <p class="card-text">{{ schedule.description or 'No description' }}</p>
+                            <p><strong>Date:</strong> {{ schedule.date.strftime('%d %b %Y') }}</p>
+                            <p><strong>Time:</strong> {{ schedule.time.strftime('%I:%M %p') }}</p>
+                            <p><strong>Reminder:</strong> {{ 'Yes' if schedule.reminder else 'No' }}</p>
+
+                            <a href="{{ url_for('update_schedule', schedule_id=schedule.id) }}" class="edit-btn">✏️ Edit</a>
+
+                                <!-- Simple POST form for delete -->
+                                <form method="POST" action="{{ url_for('delete_schedule', schedule_id=schedule.id) }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">🗑️ Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center text-muted">No schedules found.</p>
+    {% endif %}
+</div>
+
+<!-- Back Button -->
+<div class="text-center mt-4">
+    <a href="{{ url_for('home') }}" class="btn btn-secondary">← Back to Home</a>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">🗓️ Your Schedules</h2>
+
+    {% if schedules %}
+        <div class="row">
+            {% for schedule in schedules %}
+                <div class="col-md-6 mb-4">
+                    <div class="card glass-card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">{{ schedule.title }}</h5>
+                            <p class="card-text">{{ schedule.description or 'No description' }}</p>
+                            <p><strong>Date:</strong> {{ schedule.date.strftime('%d %b %Y') }}</p>
+                            <p><strong>Time:</strong> {{ schedule.time.strftime('%I:%M %p') }}</p>
+                            <p><strong>Reminder:</strong> {{ 'Yes' if schedule.reminder else 'No' }}</p>
+
+                            <!-- ✅ Buttons Row -->
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+    <!-- Edit Button -->
+    <a href="{{ url_for('update_schedule', schedule_id=schedule.id) }}"
+       class="btn btn-sm px-4 py-2"
+       style="background: linear-gradient(to right, #00c6ff, #0072ff); color: white; border: none; border-radius: 8px;">
+        ✏️ Edit
+    </a>
+
+    <!-- Delete Button -->
+    <form action="{{ url_for('delete_schedule', schedule_id=schedule.id) }}" method="POST" style="margin: 0;">
+        <button type="submit"
+                class="btn btn-sm px-4 py-2"
+                style="background: linear-gradient(to right, #00c6ff, #0072ff); color: white; border: none; border-radius: 8px;">
+            🗑️ Delete
+        </button>
+    </form>
+</div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center text-muted">No schedules found.</p>
+    {% endif %}
+</div>
+
+<!-- Back Button -->
+<div class="text-center mt-4">
+    <a href="{{ url_for('home') }}" class="btn btn-secondary">← Back to Home</a>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">🗓️ Your Schedules</h2>
+
+    {% if schedules %}
+    <div class="row">
+        {% for schedule in schedules %}
+        <div class="col-md-6 mb-4">
+            <!-- <div class="card glass-card shadow-sm"> -->
+                <!-- <div class="card-body"> -->
+                    <h5 class="card-title fw-bold">{{ schedule.title }}</h5>
+                    <p class="card-text">{{ schedule.description or 'No description' }}</p>
+                    <p><strong>Date:</strong> {{ schedule.date.strftime('%d %b %Y') }}</p>
+                    <p><strong>Time:</strong> {{ schedule.time.strftime('%I:%M %p') }}</p>
+                    <p><strong>Reminder:</strong> {{ 'Yes' if schedule.reminder else 'No' }}</p>
+
+                    <!-- ✅ Buttons Row -->
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <!-- Edit Button -->
+                        <a href="{{ url_for('update_schedule', schedule_id=schedule.id) }}" class="btn btn-sm px-4 py-2"
+                            style="background: linear-gradient(to right, #00c6ff, #0072ff); color: white; border: none; border-radius: 8px;">
+                            ✏️ Edit
+                        </a>
+
+                        <!-- Delete Button -->
+                        <form action="{{ url_for('delete_schedule', schedule_id=schedule.id) }}" method="POST"
+                            style="margin: 0;">
+                            <button type="submit" class="btn btn-sm px-4 py-2"
+                                style="background: linear-gradient(to right, #00c6ff, #0072ff); color: white; border: none; border-radius: 8px;">
+                                🗑️ Delete
+                            </button>
+                        </form>
+                    </div>
+                <!-- </div> -->
+            <!-- </div> -->
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center text-muted">No schedules found.</p>
+    {% endif %}
+</div>
+
+<!-- Back Button -->
+<div class="text-center mt-4">
+    <a href="{{ url_for('home') }}" class="btn btn-secondary">← Back to Home</a>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">🗓️ Your Schedules</h2>
+
+    {% if schedules %}
+    <div class="row">
+        {% for schedule in schedules %}
+        <div class="col-md-6 mb-4">
+            <!-- <div class="card glass-card shadow-sm"> -->
+                <!-- <div class="card-body"> -->
+                    <h5 class="card-title fw-bold">{{ schedule.title }}</h5>
+                    <p class="card-text">{{ schedule.description or 'No description' }}</p>
+                    <p><strong>Date:</strong> {{ schedule.date.strftime('%d %b %Y') }}</p>
+                    <p><strong>Time:</strong> {{ schedule.time.strftime('%I:%M %p') }}</p>
+                    <p><strong>Reminder:</strong> {{ 'Yes' if schedule.reminder else 'No' }}</p>
+
+                    <!-- ✅ Buttons Row -->
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <!-- Edit Button -->
+                        <a href="{{ url_for('update_schedule', schedule_id=schedule.id) }}" class="btn btn-sm px-4 py-2"
+                            style="background: linear-gradient(to right, #00c6ff, #0072ff); color: white; border: none; border-radius: 8px;">
+                            ✏️ Edit
+                        </a>
+
+                        <!-- Delete Button -->
+                        <form action="{{ url_for('delete_schedule', schedule_id=schedule.id) }}" method="POST"
+                            style="margin: 0;">
+                            <button type="submit" class="btn btn-sm px-4 py-2"
+                                style="background: linear-gradient(to right, #00c6ff, #0072ff); color: white; border: none; border-radius: 8px;">
+                                🗑️ Delete
+                            </button>
+                        </form>
+                    </div>
+                <!-- </div> -->
+            <!-- </div> -->
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center text-muted">No schedules found.</p>
+    {% endif %}
+</div>
+
+<!-- Back Button -->
+<div class="text-center mt-4">
+    <a href="{{ url_for('home') }}" class="btn btn-secondary">← Back to Home</a>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-5">📅 Your Schedules</h2>
+
+    {% if schedules %}
+    <div class="row g-4">
+        {% for schedule in schedules %}
+        <div class="col-md-6">
+            <div class="border rounded p-4 shadow-sm bg-light">
+                <h4 class="mb-2">{{ schedule.title }}</h4>
+                <p>{{ schedule.description or 'No description provided.' }}</p>
+                <p><strong>Date:</strong> {{ schedule.date.strftime('%d %B %Y') }}</p>
+                <p><strong>Time:</strong> {{ schedule.time.strftime('%I:%M %p') }}</p>
+                <p><strong>Reminder:</strong> {{ 'Yes' if schedule.reminder else 'No' }}</p>
+
+                <!-- Buttons -->
+                <div class="mt-4 d-flex gap-3">
+                    <!-- Edit -->
+                    <a href="{{ url_for('update_schedule', schedule_id=schedule.id) }}" class="btn btn-primary">✏️ Edit</a>
+
+                    <!-- Delete -->
+                    <form action="{{ url_for('delete_schedule', schedule_id=schedule.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-primary">
+                    🗑️ Delete</button>
+                  </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p class="text-center text-muted">You haven't added any schedules yet.</p>
+    {% endif %}
+</div>
+
+<!-- Back Button -->
+<div class="text-center mt-5">
+    <a href="{{ url_for('home') }}" class="btn btn-dark px-4 py-2 rounded-pill">← Back to Home</a>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% extends "base.html" %}
+{% block content %}
+
+
+  
+  <div class="form-container fade-in">
+  <form method="POST">
+    <h2 class="text-center mb-4">👤 My Profile</h2>
+    <div class="row g-3">
+      <!-- Name (readonly) -->
+      <div class="col-md-6">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-control" value="{{ user.name }}" readonly>
+      </div>
+
+      <!-- Email (readonly) -->
+      <div class="col-md-6">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" value="{{ user.email }}" readonly>
+      </div>
+
+      <!-- Mobile -->
+      <div class="col-md-6">
+        <label class="form-label">Mobile Number</label>
+        <input type="text" name="mobile" class="form-control" value="{{ user.mobile or '' }}">
+      </div>
+
+      <!-- Country -->
+      <div class="col-md-6">
+        <label class="form-label">Country</label>
+        <input type="text" name="country" class="form-control" value="{{ user.country or '' }}">
+      </div>
+
+      <!-- State -->
+      <div class="col-md-6">
+        <label class="form-label">State</label>
+        <input type="text" name="state" class="form-control" value="{{ user.state or '' }}">
+      </div>
+
+      <!-- DOB -->
+      <div class="col-md-6">
+        <label class="form-label">Date of Birth</label>
+        <input type="date" name="dob" class="form-control" value="{{ user.dob }}">
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-primary w-100">💾 Save Changes</button>
+    </div>
+  </form>
+  </div>
+
+
+{% endblock %}
+
+
+
+
+
+
+
+ 
+
+  
+
+
+
+
+
+

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5 fade-in">
+    <h2 class="text-center mb-5" style="font-weight: 700; color: #3f51b5;">About This App & Me</h2>
+
+    <div class="mb-5">
+        <h4 style="font-weight: 600; color: #00c6ff; border-bottom: 2px solid #00c6ff; display: inline-block; padding-bottom: 5px;">
+            👋 About Me
+        </h4>
+        <p>
+            Hey there, I’m Banda Yash. I'm someone who enjoys building things that help people in simple ways.
+            I love working on small projects like this web app to improve my skills and create something useful.
+        </p>
+        <p>
+            I enjoy learning Python, creating web apps, and I'm also a big fan of anime. Apart from coding, I like experimenting with AI tools and thinking about ways to turn ideas into something real.
+        </p>
+    </div>
+
+    <div class="mb-5">
+        <h4 style="font-weight: 600; color: #00c6ff; border-bottom: 2px solid #00c6ff; display: inline-block; padding-bottom: 5px;">
+            🛠️ About the Schedule Reminder App
+        </h4>
+        <p>
+            This is a simple web app I built to help manage daily schedules. You can add your tasks, set reminders, and edit or delete them anytime.
+            I built it using Flask and Python as part of my learning journey.
+        </p>
+        <p>
+            My goal with this app was to make something clean and easy to use, so you don't forget the things that matter.
+        </p>
+    </div>
+
+    <div class="text-center">
+        <p style="font-weight: 500; color: #555;">Thanks for checking out my app. Hope it helps you stay organized! 😊</p>
+        <p>
+            <a href="https://www.linkedin.com/in/banda-yash-829633259/" target="_blank" style="color: #3f51b5; font-weight: 500;">
+                🔗 Connect with me on LinkedIn
+            </a>
+        </p>
+    </div>
+    <div class="text-center mt-4">
+        <a href="{{ url_for('home') }}" class="btn btn-primary">← Back to Home</a>
+    </div>
+</div>
+{% endblock %}

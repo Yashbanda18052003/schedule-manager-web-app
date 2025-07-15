@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5 fade-in">
+<div class="container mt-4">
+    <h2 class="text-center">✏️ Edit Schedule</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label>Title</label>
+            <input type="text" class="form-control" name="title" value="{{ schedule.title }}" required>
+        </div>
+        <div class="mb-3">
+            <label>Description</label>
+            <textarea class="form-control" name="description">{{ schedule.description }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label>Date</label>
+            <input type="date" class="form-control" name="date" value="{{ schedule.date }}">
+        </div>
+        <div class="mb-3">
+            <label>Time</label>
+            <input type="time" class="form-control" name="time" value="{{ schedule.time.strftime('%H:%M') }}">
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="reminder" id="reminder" {% if schedule.reminder %}checked{% endif %}>
+            <label class="form-check-label" for="reminder">Reminder</label>
+        </div>
+        <button type="submit" class="btn btn-success">💾 Save Changes</button>
+        <a href="{{ url_for('view_schedules') }}" class="btn btn-secondary">← Cancel</a>
+    </form>
+</div>
+</div>
+{% endblock %}
+

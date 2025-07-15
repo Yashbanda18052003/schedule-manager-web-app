@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="transparent-form fade-in">
+    <h2 class="text-center mb-4">📞 Contact Us</h2>
+
+    <p class="text-center">Have questions or feedback? Feel free to reach out to us!</p>
+
+    <div class="mt-4">
+        <h5 style="color: #3f51b5;">📧 Email:</h5>
+        <p>bandayash750@gmail.com</p>
+
+        <h5 style="color: #3f51b5;">🔗 LinkedIn:</h5>
+        <p><a href="https://www.linkedin.com/in/banda-yash/" target="_blank">https://www.linkedin.com/in/banda-yash/</a></p>
+
+        <h5 style="color: #3f51b5;">🌐 Location:</h5>
+        <p>India</p>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('home') }}" class="btn btn-primary">← Back to Home</a>
+    </div>
+</div>
+{% endblock %}
+
