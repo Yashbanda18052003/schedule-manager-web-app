@@ -43,4 +43,10 @@ pip install -r requirements.txt
 python app.py
 
 
-![Dashboard](assets/screenshots/dashboard.png)
+![Home page](assets/screenshots/Home page.png)
+![Register page](assets/screenshots/Register page.png)
+![Login page](assets/screenshots/Login page.png)
+![Schedule page](assets/screenshots/Schedule page.png)
+![User profile page](assets/screenshots/User profile page.png)
+![Mail receive proof page](assets/screenshots/Mail receive proof.png)
+![Add schedule page](assets/screenshots/Add schedule page.png)
