@@ -7,11 +7,17 @@ from models import db, User, Schedule
 from datetime import datetime, timedelta
 from flask_mail import Mail, Message
 from flask_apscheduler import APScheduler
+import os
 
 # -------- Flask Configuration --------
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'yash_super_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'fallback_secret')
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(basedir, "users.db")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # -------- Mail Configuration --------
@@ -285,7 +291,9 @@ def delete_user(user_id):
 
 
 # -------- Run --------
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
