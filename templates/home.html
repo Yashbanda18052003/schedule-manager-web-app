@@ -4,24 +4,25 @@
 <div class="container-fluid px-lg-5">
   {% if current_user.is_authenticated %}
     <!-- Logged In Dashboard Hero -->
-    <div class="p-4 p-md-5 rounded-4 mb-4 text-white position-relative overflow-hidden shadow-sm" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 60%, #818cf8 100%);">
+    <div class="hero-command-card p-4 p-md-5 mb-4 text-white">
       <div class="row align-items-center position-relative" style="z-index: 2;">
         <div class="col-lg-8">
-          <span class="badge bg-white text-primary rounded-pill px-3 py-1 mb-3 fw-bold shadow-sm" style="font-size: 0.8rem;">
-            🚀 Daily Productivity Command Center
-          </span>
-          <h1 class="fw-bold mb-2 display-6">Welcome back, {{ current_user.name }} 👋</h1>
-          <p class="mb-4 opacity-90 lead fs-6" style="max-width: 600px;">
-            You have <strong>{{ pending_count }} pending</strong> schedules. Stay on track with automated reminders and priority deadlines.
+          <div class="d-inline-flex align-items-center gap-2 hero-tag rounded-pill px-3 py-1 mb-3">
+            <i class="bi bi-rocket-takeoff-fill text-info"></i>
+            <span>DAILY PRODUCTIVITY COMMAND CENTER</span>
+          </div>
+          <h1 class="hero-title display-6 mb-2">Welcome back, {{ current_user.name }} 👋</h1>
+          <p class="text-muted lead fs-6 mb-4" style="max-width: 600px; color: #94a3b8 !important;">
+            You have <strong class="text-info">{{ pending_count }} pending</strong> schedules. Stay on track with automated reminders and priority deadlines.
           </p>
           <div class="d-flex flex-wrap gap-2">
-            <a href="{{ url_for('add_schedule') }}" class="btn btn-light text-primary rounded-pill px-4 fw-bold shadow-sm">
+            <a href="{{ url_for('add_schedule') }}" class="btn hero-btn-primary rounded-pill px-4 py-2">
               <i class="bi bi-plus-circle-fill me-1"></i> Add Schedule
             </a>
-            <a href="{{ url_for('calendar_view') }}" class="btn btn-outline-light rounded-pill px-4 fw-semibold">
+            <a href="{{ url_for('calendar_view') }}" class="btn hero-btn-frosted rounded-pill px-4 py-2">
               <i class="bi bi-calendar3 me-1"></i> Open Calendar
             </a>
-            <a href="{{ url_for('analytics_view') }}" class="btn btn-outline-light rounded-pill px-4 fw-semibold">
+            <a href="{{ url_for('analytics_view') }}" class="btn hero-btn-frosted rounded-pill px-4 py-2">
               <i class="bi bi-graph-up me-1"></i> View Analytics
             </a>
           </div>
@@ -29,17 +30,17 @@
 
         <!-- Quick Summary Stats on the Hero -->
         <div class="col-lg-4 mt-4 mt-lg-0">
-          <div class="row g-2">
+          <div class="row g-3">
             <div class="col-6">
-              <div class="p-3 rounded-3 text-center" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);">
-                <div class="fs-4 fw-bold">{{ total_count }}</div>
-                <div class="small opacity-75">Total Tasks</div>
+              <div class="hero-stat-box p-3 text-center">
+                <div class="fs-3 fw-extrabold text-info">{{ total_count }}</div>
+                <div class="small text-muted fw-semibold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Total Tasks</div>
               </div>
             </div>
             <div class="col-6">
-              <div class="p-3 rounded-3 text-center" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);">
-                <div class="fs-4 fw-bold">{{ completed_count }}</div>
-                <div class="small opacity-75">Completed</div>
+              <div class="hero-stat-box p-3 text-center">
+                <div class="fs-3 fw-extrabold text-success">{{ completed_count }}</div>
+                <div class="small text-muted fw-semibold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Completed</div>
               </div>
             </div>
           </div>
@@ -47,7 +48,7 @@
       </div>
     </div>
 
-    <!-- Upcoming Tasks Section -->
+    <!-- Upcoming Tasks Section Header -->
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h4 class="fw-bold mb-0 d-flex align-items-center gap-2">
         <i class="bi bi-bell-fill text-warning"></i> Next Upcoming Tasks
@@ -61,28 +62,28 @@
       <div class="row g-3 mb-5">
         {% for s in schedules %}
           <div class="col-md-6 col-lg-3">
-            <div class="card h-100 border-0 shadow-sm rounded-4 p-3 position-relative">
+            <div class="card schedule-item-card h-100 border-0 p-3 position-relative">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="badge rounded-pill px-2 py-1 small category-chip-{{ s.category or 'general' }}">
                   {{ (s.category or 'general') | capitalize }}
                 </span>
                 {% if s.priority == 'high' %}
-                  <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small">🔴 High</span>
+                  <span class="badge badge-priority-high rounded-pill px-2 py-1 small">🔴 High</span>
                 {% elif s.priority == 'low' %}
-                  <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1 small">🟢 Low</span>
+                  <span class="badge badge-priority-low rounded-pill px-2 py-1 small">🟢 Low</span>
                 {% else %}
-                  <span class="badge bg-warning-subtle text-warning rounded-pill px-2 py-1 small">🟡 Medium</span>
+                  <span class="badge badge-priority-medium rounded-pill px-2 py-1 small">🟡 Medium</span>
                 {% endif %}
               </div>
 
               <h6 class="fw-bold mb-1 text-truncate" title="{{ s.title }}">{{ s.title }}</h6>
-              <p class="text-muted small mb-2 text-truncate" style="font-size: 0.8rem;">
-                {{ s.description or 'No notes' }}
+              <p class="text-muted small mb-2 text-truncate" style="font-size: 0.82rem;">
+                {{ s.description or 'No notes added' }}
               </p>
 
               <div class="small text-muted mb-3">
-                <div><i class="bi bi-calendar-event me-1 text-primary"></i> {{ s.date.strftime('%d %b %Y') }}</div>
-                <div><i class="bi bi-clock me-1 text-primary"></i> {{ s.time.strftime('%I:%M %p') }}</div>
+                <div><i class="bi bi-calendar-event me-1 text-info"></i> {{ s.date.strftime('%d %b %Y') }}</div>
+                <div><i class="bi bi-clock me-1 text-info"></i> {{ s.time.strftime('%I:%M %p') }}</div>
               </div>
 
               <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top border-light-subtle">
@@ -101,11 +102,16 @@
         {% endfor %}
       </div>
     {% else %}
-      <div class="text-center py-5 my-4 bg-light-subtle rounded-4 border border-light-subtle">
-        <div class="fs-1 text-muted mb-2"><i class="bi bi-check2-circle text-success"></i></div>
-        <h5 class="fw-bold">All caught up!</h5>
-        <p class="text-muted small mb-3">You don't have any pending upcoming schedules right now.</p>
-        <a href="{{ url_for('add_schedule') }}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold">
+      <!-- Empty Caught-Up Card -->
+      <div class="empty-state-card text-center my-4">
+        <div class="empty-state-icon-box">
+          <i class="bi bi-check2"></i>
+        </div>
+        <h4 class="fw-bold mb-1">All caught up!</h4>
+        <p class="text-muted small mb-4" style="max-width: 440px; margin: 0 auto; color: #94a3b8 !important;">
+          You don't have any pending upcoming schedules right now. Stay productive or schedule a new event below.
+        </p>
+        <a href="{{ url_for('add_schedule') }}" class="btn hero-btn-primary rounded-pill px-4 py-2 shadow-sm fw-bold">
           <i class="bi bi-plus-circle me-1"></i> Schedule a Task
         </a>
       </div>
@@ -115,8 +121,8 @@
     <!-- Public Landing Hero -->
     <div class="py-5 text-center my-4">
       <div class="col-lg-8 mx-auto">
-        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 mb-3 fw-semibold">
-          ⏰ Smart Task Scheduling & Automated Reminders
+        <span class="badge rounded-pill px-3 py-1 mb-3 fw-bold hero-tag">
+          ⏰ SMART TASK SCHEDULING & AUTOMATED REMINDERS
         </span>
         <h1 class="display-4 fw-extrabold mb-3">Master Your Time with <span class="text-indigo-gradient">Schedule Manager</span></h1>
         <p class="lead text-muted mb-4 fs-5" style="max-width: 650px; margin: 0 auto;">
@@ -136,18 +142,18 @@
     <!-- Feature Grid -->
     <div class="row g-4 my-4">
       <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
+        <div class="card h-100 border-0 p-4 text-center">
           <div class="d-inline-flex p-3 rounded-circle bg-primary-subtle text-primary mx-auto mb-3 fs-3">
             <i class="bi bi-bell-fill"></i>
           </div>
           <h5 class="fw-bold mb-2">Automated Email Alerts</h5>
-          <p class="text-muted small mb-0">Choose customized notification intervals (10 mins, 1 hour, 1 day, or 1 week before) delivered straight to your inbox.</p>
+          <p class="text-muted small mb-0">Choose customized notification intervals (15 mins, 1 hour, 1 day, or 1 week before) delivered straight to your inbox.</p>
         </div>
       </div>
 
       <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
-          <div class="d-inline-flex p-3 rounded-circle bg-success-subtle text-success mx-auto mb-3 fs-3">
+        <div class="card h-100 border-0 p-4 text-center">
+          <div class="d-inline-flex p-3 rounded-circle bg-info-subtle text-info mx-auto mb-3 fs-3">
             <i class="bi bi-calendar3"></i>
           </div>
           <h5 class="fw-bold mb-2">FullCalendar & Sync</h5>
@@ -156,8 +162,8 @@
       </div>
 
       <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
-          <div class="d-inline-flex p-3 rounded-circle bg-warning-subtle text-warning mx-auto mb-3 fs-3">
+        <div class="card h-100 border-0 p-4 text-center">
+          <div class="d-inline-flex p-3 rounded-circle bg-success-subtle text-success mx-auto mb-3 fs-3">
             <i class="bi bi-graph-up-arrow"></i>
           </div>
           <h5 class="fw-bold mb-2">Productivity Analytics</h5>

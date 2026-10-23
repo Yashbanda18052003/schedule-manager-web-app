@@ -1,10 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="en" data-bs-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Schedule Manager — Smart Productivity & Event Planner</title>
   
+  <!-- Early Theme Init to Prevent Flash -->
+  <script>
+    (function() {
+      var savedTheme = localStorage.getItem('schedule_manager_theme_v2') || 'dark';
+      document.documentElement.setAttribute('data-bs-theme', savedTheme);
+    })();
+  </script>
+
   <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -67,8 +75,8 @@
       <!-- Right Action Items -->
       <div class="d-flex align-items-center ms-auto gap-2">
         <!-- Theme Toggle Button -->
-        <button class="btn btn-outline-light btn-theme-toggle rounded-circle p-2" id="themeToggleBtn" title="Toggle Dark/Light Mode">
-          <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+        <button class="btn btn-theme-toggle rounded-circle" id="themeToggleBtn" title="Toggle Theme (Dark / Light)">
+          <i class="bi bi-sun-fill text-warning" id="themeIcon"></i>
         </button>
 
         {% if current_user.is_authenticated %}
@@ -78,12 +86,12 @@
 
           <!-- User Dropdown -->
           <div class="dropdown ms-2">
-            <a href="#" class="btn btn-outline-light rounded-pill px-3 py-1 d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-person-circle fs-5"></i>
+            <a href="#" class="btn btn-outline-light rounded-pill px-3 py-1 d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="border-color: rgba(255, 255, 255, 0.15);">
+              <i class="bi bi-person-circle fs-5 text-info"></i>
               <span class="d-none d-md-inline fw-semibold small">{{ current_user.name.split()[0] }}</span>
             </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 modern-dropdown mt-2">
-              <li class="px-3 py-2 border-bottom">
+            <ul class="dropdown-menu dropdown-menu-end border-0 modern-dropdown mt-2">
+              <li class="px-3 py-2 border-bottom border-light-subtle">
                 <div class="fw-bold small">{{ current_user.name }}</div>
                 <div class="text-muted text-truncate" style="font-size: 0.75rem; max-width: 180px;">{{ current_user.email }}</div>
               </li>
@@ -155,28 +163,28 @@
 <!-- Dark/Light Theme Switcher Logic -->
 <script>
   (function() {
-    const savedTheme = localStorage.getItem('schedule_manager_theme') || 'light';
+    var savedTheme = localStorage.getItem('schedule_manager_theme_v2') || 'dark';
     document.documentElement.setAttribute('data-bs-theme', savedTheme);
     updateThemeIcon(savedTheme);
 
-    const toggleBtn = document.getElementById('themeToggleBtn');
+    var toggleBtn = document.getElementById('themeToggleBtn');
     if (toggleBtn) {
       toggleBtn.addEventListener('click', function() {
-        const current = document.documentElement.getAttribute('data-bs-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
+        var current = document.documentElement.getAttribute('data-bs-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-bs-theme', next);
-        localStorage.setItem('schedule_manager_theme', next);
+        localStorage.setItem('schedule_manager_theme_v2', next);
         updateThemeIcon(next);
       });
     }
 
     function updateThemeIcon(theme) {
-      const icon = document.getElementById('themeIcon');
+      var icon = document.getElementById('themeIcon');
       if (icon) {
         if (theme === 'dark') {
           icon.className = 'bi bi-sun-fill text-warning';
         } else {
-          icon.className = 'bi bi-moon-stars-fill text-light';
+          icon.className = 'bi bi-moon-stars-fill text-info';
         }
       }
     }
