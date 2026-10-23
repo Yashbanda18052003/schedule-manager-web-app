@@ -21,12 +21,29 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # -------- Mail Configuration --------
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+# Fallback .env loading
+env_file = os.path.join(basedir, '.env')
+if os.path.exists(env_file):
+    with open(env_file, 'r', encoding='utf-8') as f_env:
+        for line in f_env:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                k, v = line.split('=', 1)
+                val = v.strip().strip("'\"")
+                os.environ.setdefault(k.strip(), val)
+
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True').lower() in ['true', '1', 't']
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', '')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', os.environ.get('MAIL_USERNAME', ''))
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'yash.glsbca21@gmail.com')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'sowfupoevcfvytpu')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', os.environ.get('MAIL_USERNAME', 'yash.glsbca21@gmail.com'))
 
 # -------- Initialization --------
 db.init_app(app)
@@ -43,7 +60,35 @@ scheduler.start()
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# -------- Reminder Email Function --------
+# -------- Helper to Schedule Reminder 1 Day Before --------
+def schedule_reminder_job(schedule_id, user_id, date, time):
+    """Schedules an automated email reminder 1 day before the event date and time."""
+    event_datetime = datetime.combine(date, time)
+    reminder_datetime = event_datetime - timedelta(days=1)
+    now = datetime.now()
+
+    # If the event is scheduled for less than 1 day from now,
+    # trigger in 10 seconds so the user/tester receives the reminder promptly!
+    if reminder_datetime <= now:
+        run_date = now + timedelta(seconds=10)
+        print(f"[REMINDER] Event {schedule_id} is within 24 hours ({event_datetime}). Reminder set to trigger shortly at {run_date}")
+    else:
+        run_date = reminder_datetime
+        print(f"[REMINDER] Reminder job {schedule_id} scheduled 1 day before event at {run_date}")
+
+    job_id = f"reminder_{schedule_id}"
+    scheduler.add_job(
+        func=send_reminder_email,
+        trigger='date',
+        run_date=run_date,
+        args=[user_id, schedule_id],
+        id=job_id,
+        replace_existing=True
+    )
+    return run_date
+
+
+# -------- Reminder Email Function (1-Day Advance Notice) --------
 def send_reminder_email(user_id, schedule_id):
     with app.app_context():
         user = User.query.get(user_id)
@@ -53,39 +98,52 @@ def send_reminder_email(user_id, schedule_id):
             print("❌ User or Schedule not found.")
             return
 
-        subject = "⏰ Schedule Reminder from Schedule Manager"
+        subject = f"⏰ 1-Day Reminder: '{schedule.title}' is scheduled for tomorrow!"
 
         # Plain text version
         plain_body = f"""Hi {user.name},
 
-This is a reminder for your schedule:
+This is an automated 1-day advance reminder for your upcoming schedule tomorrow:
 
-Title: {schedule.title}
-Date: {schedule.date.strftime('%d %B %Y')}
-Time: {schedule.time.strftime('%I:%M %p')}
-Description: {schedule.description or 'No description provided.'}
+📌 Title: {schedule.title}
+📅 Date: {schedule.date.strftime('%d %B %Y')}
+🕒 Time: {schedule.time.strftime('%I:%M %p')}
+📝 Description: {schedule.description or 'No description provided.'}
 
 -----
-This is an automated reminder from Schedule Manager.
+This is an automated reminder from Schedule Manager Web App.
 Please do not reply to this email."""
 
-        # HTML version
+        # Modern HTML Email Template
         html_body = f"""
+        <!DOCTYPE html>
         <html>
-            <body>
-                <p>Hi {user.name},</p>
-                <p>This is a reminder for your schedule:</p>
-                <ul>
-                    <li><strong>Title:</strong> {schedule.title}</li>
-                    <li><strong>Date:</strong> {schedule.date.strftime('%d %B %Y')}</li>
-                    <li><strong>Time:</strong> {schedule.time.strftime('%I:%M %p')}</li>
-                    <li><strong>Description:</strong> {schedule.description or 'No description provided.'}</li>
-                </ul>
-                <hr>
-                <p style="font-size: small; color: gray;">
-                    This is an automated reminder from <strong>Schedule Manager App</strong>.<br>
-                    Please do not reply to this email.
-                </p>
+            <head>
+                <meta charset="UTF-8">
+            </head>
+            <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
+                <div style="max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                    <div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); padding: 24px; color: #ffffff;">
+                        <h2 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700;">⏰ 1-Day Advance Reminder</h2>
+                        <p style="margin: 0; opacity: 0.9; font-size: 14px;">Your scheduled event is coming up tomorrow!</p>
+                    </div>
+                    <div style="padding: 24px;">
+                        <p style="font-size: 15px; margin-top: 0;">Hi <strong>{user.name}</strong>,</p>
+                        <p style="font-size: 14px; color: #475569;">This is a friendly notification from Schedule Manager to help you prepare for tomorrow's schedule:</p>
+                        
+                        <div style="background: #f1f5f9; border-left: 4px solid #4f46e5; border-radius: 8px; padding: 16px; margin: 20px 0;">
+                            <h3 style="margin: 0 0 10px 0; color: #1e293b; font-size: 17px;">📌 {schedule.title}</h3>
+                            <p style="margin: 6px 0; font-size: 14px;"><strong>📅 Date:</strong> {schedule.date.strftime('%d %B %Y')}</p>
+                            <p style="margin: 6px 0; font-size: 14px;"><strong>🕒 Time:</strong> {schedule.time.strftime('%I:%M %p')}</p>
+                            <p style="margin: 6px 0; font-size: 14px;"><strong>📝 Description:</strong> {schedule.description or 'No description provided.'}</p>
+                        </div>
+
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 0;">Stay organized and have a productive day ahead!</p>
+                    </div>
+                    <div style="background: #f8fafc; padding: 14px 24px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center;">
+                        Automated reminder sent by <strong>Schedule Manager Web App</strong>.
+                    </div>
+                </div>
             </body>
         </html>
         """
@@ -99,9 +157,9 @@ Please do not reply to this email."""
                           reply_to=app.config['MAIL_USERNAME'])
 
             mail.send(msg)
-            print(f"✅ Reminder sent to {user.email} for schedule '{schedule.title}'")
+            print(f"[SUCCESS] 1-Day Reminder email sent successfully to {user.email} for '{schedule.title}'")
         except Exception as e:
-            print(f"❌ Failed to send reminder: {e}")
+            print(f"[ERROR] Failed to send reminder email: {e}")
 
 # -------- Routes (Unchanged Except add_schedule) --------
 @app.route('/')
@@ -191,18 +249,7 @@ def add_schedule():
         db.session.commit()
 
         if reminder:
-            schedule_datetime = datetime.combine(date, time) - timedelta(minutes=1)
-            job_id = f"reminder_{schedule.id}"
-
-            scheduler.add_job(
-                func=send_reminder_email,
-                trigger='date',
-                run_date=schedule_datetime,
-                args=[current_user.id, schedule.id],
-                id=job_id,
-                replace_existing=True
-            )
-            print(f"✅ Reminder job scheduled at {schedule_datetime}")
+            schedule_reminder_job(schedule.id, current_user.id, date, time)
 
         flash("✅ Schedule added successfully!", "success")
         return redirect(url_for('view_schedules'))
@@ -231,6 +278,18 @@ def update_schedule(schedule_id):
         schedule.reminder = 'reminder' in request.form
 
         db.session.commit()
+
+        # Update or cancel reminder job
+        job_id = f"reminder_{schedule.id}"
+        if schedule.reminder:
+            schedule_reminder_job(schedule.id, current_user.id, schedule.date, schedule.time)
+        else:
+            try:
+                scheduler.remove_job(job_id)
+                print(f"🗑️ Removed reminder job for schedule {schedule.id}")
+            except Exception:
+                pass
+
         flash("✅ Schedule updated successfully!", "success")
         return redirect(url_for('view_schedules'))
 
@@ -241,6 +300,11 @@ def update_schedule(schedule_id):
 def delete_schedule(schedule_id):
     schedule = Schedule.query.filter_by(id=schedule_id, user_id=current_user.id).first()
     if schedule:
+        # Cancel any scheduled reminder job
+        try:
+            scheduler.remove_job(f"reminder_{schedule.id}")
+        except Exception:
+            pass
         db.session.delete(schedule)
         db.session.commit()
         flash("🗑️ Schedule deleted.", "success")
