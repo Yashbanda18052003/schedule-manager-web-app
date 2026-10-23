@@ -69,10 +69,17 @@ An intelligent time-management and personal productivity platform built with **P
 
 ---
 
-### 🔍 Schedules Backlog & 🔐 Cyber Authentication
-| 🔍 Multi-Filter Schedules List & Priority Pills | 🔐 Glassmorphic Cyber Midnight Sign-In |
+### 🔍 Schedules Backlog & ➕ Add Schedule Studio
+| 🔍 Multi-Filter Schedules List & Priority Pills | ➕ Add Schedule Studio (Categories & Priorities) |
 | :---: | :---: |
-| ![Schedules Backlog](assets/screenshots/05_schedules_backlog.png) | ![Sign In Screen](assets/screenshots/06_auth_login.png) |
+| ![Schedules Backlog](assets/screenshots/05_schedules_backlog.png) | ![Add Schedule Studio](assets/screenshots/08_add_schedule.png) |
+
+---
+
+### 👤 Profile Management & 🔐 Cyber Authentication
+| 👤 User Profile Details & Account Controls | 🔐 Cyber Midnight Sign-In (In-Input Eye Toggle) |
+| :---: | :---: |
+| ![User Profile Details](assets/screenshots/09_profile_view.png) | ![Sign In Screen](assets/screenshots/06_auth_login.png) |
 
 ---
 
@@ -215,7 +222,10 @@ schedule reminder/
 │       ├── 03_interactive_calendar.png
 │       ├── 04_productivity_analytics.png
 │       ├── 05_schedules_backlog.png
-│       └── 06_auth_login.png
+│       ├── 06_auth_login.png
+│       ├── 07_signup_screen.png
+│       ├── 08_add_schedule.png
+│       └── 09_profile_view.png
 │
 ├── static/
 │   └── css/
