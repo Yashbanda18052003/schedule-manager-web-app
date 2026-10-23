@@ -204,6 +204,7 @@ schedule reminder/
 ├── users.db                    # SQLite production database
 ├── requirements.txt            # Python dependencies
 ├── Procfile                    # Deployment entry point
+├── run_app.bat                 # 1-Click Windows startup launcher
 ├── .env                        # Environment credentials (SMTP, keys, secrets)
 ├── .env.example                # Template for environment configuration
 │
@@ -279,6 +280,11 @@ MAIL_DEFAULT_SENDER=your_email@gmail.com
 ```
 
 ### 5. Launch the Application
+
+**Option A — Windows 1-Click Launcher:**
+Double-click `run_app.bat` in the root directory.
+
+**Option B — Command Line:**
 ```bash
 python app.py
 ```
@@ -287,6 +293,37 @@ Open **`http://127.0.0.1:5000`** in your browser. All tables are automatically v
 ---
 
 ## 📊 Database Schema
+
+```mermaid
+erDiagram
+    USER ||--o{ SCHEDULE : creates
+
+    USER {
+        int id PK
+        string name
+        string email UK
+        string password
+        string mobile
+        string country
+        string state
+        date dob
+    }
+
+    SCHEDULE {
+        int id PK
+        string title
+        text description
+        date date
+        time time
+        string priority
+        string category
+        string status
+        string reminder_offset
+        string is_recurring
+        datetime completed_at
+        int user_id FK
+    }
+```
 
 ### `users` Table
 | Column | Type | Constraints | Description |
