@@ -1,24 +1,82 @@
 {% extends 'base.html' %}
+
 {% block content %}
-<div class="transparent-form fade-in">
-    <h2 class="text-center mb-4">📞 Contact Us</h2>
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      
+      <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5">
+        
+        <!-- Header -->
+        <div class="text-center mb-4">
+          <div class="d-inline-flex align-items-center justify-content-center p-3 rounded-circle bg-primary-subtle text-primary mb-3" style="width: 64px; height: 64px;">
+            <i class="bi bi-chat-dots-fill fs-2"></i>
+          </div>
+          <h2 class="fw-bold tracking-tight mb-2">Get in Touch</h2>
+          <p class="text-muted">Have a question, feedback, or a feature suggestion? Let's connect!</p>
+        </div>
 
-    <p class="text-center">Have questions or feedback? Feel free to reach out to us!</p>
+        <!-- Contact Cards -->
+        <div class="d-flex flex-column gap-3 mb-4">
+          
+          <div class="d-flex align-items-center p-3 rounded-4 bg-light-subtle border border-light-subtle">
+            <div class="rounded-3 bg-primary text-white p-2 px-3 me-3 d-flex align-items-center justify-content-center" style="font-size: 1.25rem;">
+              <i class="bi bi-envelope-fill"></i>
+            </div>
+            <div class="overflow-hidden">
+              <span class="text-muted small fw-semibold text-uppercase d-block">Direct Email</span>
+              <a href="mailto:bandayash750@gmail.com" class="fw-bold text-decoration-none text-truncate d-block">
+                bandayash750@gmail.com
+              </a>
+            </div>
+          </div>
 
-    <div class="mt-4">
-        <h5 style="color: #3f51b5;">📧 Email:</h5>
-        <p>bandayash750@gmail.com</p>
+          <div class="d-flex align-items-center p-3 rounded-4 bg-light-subtle border border-light-subtle">
+            <div class="rounded-3 bg-primary text-white p-2 px-3 me-3 d-flex align-items-center justify-content-center" style="font-size: 1.25rem;">
+              <i class="bi bi-linkedin"></i>
+            </div>
+            <div class="overflow-hidden">
+              <span class="text-muted small fw-semibold text-uppercase d-block">LinkedIn Network</span>
+              <a href="https://www.linkedin.com/in/banda-yash-829633259/" target="_blank" class="fw-bold text-decoration-none text-truncate d-block">
+                linkedin.com/in/banda-yash
+              </a>
+            </div>
+          </div>
 
-        <h5 style="color: #3f51b5;">🔗 LinkedIn:</h5>
-        <p><a href="https://www.linkedin.com/in/banda-yash/" target="_blank">https://www.linkedin.com/in/banda-yash/</a></p>
+          <div class="d-flex align-items-center p-3 rounded-4 bg-light-subtle border border-light-subtle">
+            <div class="rounded-3 bg-primary text-white p-2 px-3 me-3 d-flex align-items-center justify-content-center" style="font-size: 1.25rem;">
+              <i class="bi bi-github"></i>
+            </div>
+            <div class="overflow-hidden">
+              <span class="text-muted small fw-semibold text-uppercase d-block">GitHub</span>
+              <a href="https://github.com/Yashbanda18052003" target="_blank" class="fw-bold text-decoration-none text-truncate d-block">
+                github.com/Yashbanda18052003
+              </a>
+            </div>
+          </div>
 
-        <h5 style="color: #3f51b5;">🌐 Location:</h5>
-        <p>India</p>
+          <div class="d-flex align-items-center p-3 rounded-4 bg-light-subtle border border-light-subtle">
+            <div class="rounded-3 bg-primary text-white p-2 px-3 me-3 d-flex align-items-center justify-content-center" style="font-size: 1.25rem;">
+              <i class="bi bi-geo-alt-fill"></i>
+            </div>
+            <div>
+              <span class="text-muted small fw-semibold text-uppercase d-block">Location</span>
+              <span class="fw-bold">India</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Back Link -->
+        <div class="text-center pt-3 border-top border-light-subtle">
+          <a href="{{ url_for('home') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+          </a>
+        </div>
+
+      </div>
+
     </div>
-
-    <div class="text-center mt-4">
-        <a href="{{ url_for('home') }}" class="btn btn-primary">← Back to Home</a>
-    </div>
+  </div>
 </div>
 {% endblock %}
-

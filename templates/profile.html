@@ -1,54 +1,77 @@
 {% extends "base.html" %}
+
 {% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5">
+        
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-light-subtle">
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-3" style="width: 56px; height: 56px;">
+            {{ user.name[0] | upper if user.name else 'U' }}
+          </div>
+          <div>
+            <h3 class="fw-bold mb-0">Edit Profile</h3>
+            <p class="text-muted small mb-0">Update your contact details and personal settings.</p>
+          </div>
+          <div class="ms-auto">
+            <a href="{{ url_for('profile_view') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+              <i class="bi bi-eye"></i> View Profile
+            </a>
+          </div>
+        </div>
 
+        <form method="POST">
+          <div class="row g-3">
+            <!-- Full Name (readonly) -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small text-uppercase text-muted">Full Name</label>
+              <input type="text" class="form-control rounded-3" value="{{ user.name }}" readonly disabled>
+              <small class="text-muted" style="font-size: 0.75rem;">Account name set at registration.</small>
+            </div>
 
-  
-  <div class="form-container fade-in">
-  <form method="POST">
-    <h2 class="text-center mb-4">👤 My Profile</h2>
-    <div class="row g-3">
-      <!-- Name (readonly) -->
-      <div class="col-md-6">
-        <label class="form-label">Full Name</label>
-        <input type="text" class="form-control" value="{{ user.name }}" readonly>
-      </div>
+            <!-- Email (readonly) -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small text-uppercase text-muted">Email Address</label>
+              <input type="email" class="form-control rounded-3" value="{{ user.email }}" readonly disabled>
+              <small class="text-muted" style="font-size: 0.75rem;">Used for delivery of schedule reminders.</small>
+            </div>
 
-      <!-- Email (readonly) -->
-      <div class="col-md-6">
-        <label class="form-label">Email</label>
-        <input type="email" class="form-control" value="{{ user.email }}" readonly>
-      </div>
+            <!-- Mobile -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small text-uppercase text-muted">Mobile Number</label>
+              <input type="text" name="mobile" class="form-control rounded-3" placeholder="+91 9876543210" value="{{ user.mobile or '' }}">
+            </div>
 
-      <!-- Mobile -->
-      <div class="col-md-6">
-        <label class="form-label">Mobile Number</label>
-        <input type="text" name="mobile" class="form-control" value="{{ user.mobile or '' }}">
-      </div>
+            <!-- Date of Birth -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small text-uppercase text-muted">Date of Birth</label>
+              <input type="date" name="dob" class="form-control rounded-3" value="{{ user.dob or '' }}">
+            </div>
 
-      <!-- Country -->
-      <div class="col-md-6">
-        <label class="form-label">Country</label>
-        <input type="text" name="country" class="form-control" value="{{ user.country or '' }}">
-      </div>
+            <!-- Country -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small text-uppercase text-muted">Country</label>
+              <input type="text" name="country" class="form-control rounded-3" placeholder="e.g. India" value="{{ user.country or '' }}">
+            </div>
 
-      <!-- State -->
-      <div class="col-md-6">
-        <label class="form-label">State</label>
-        <input type="text" name="state" class="form-control" value="{{ user.state or '' }}">
-      </div>
+            <!-- State -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small text-uppercase text-muted">State / Region</label>
+              <input type="text" name="state" class="form-control rounded-3" placeholder="e.g. Gujarat" value="{{ user.state or '' }}">
+            </div>
+          </div>
 
-      <!-- DOB -->
-      <div class="col-md-6">
-        <label class="form-label">Date of Birth</label>
-        <input type="date" name="dob" class="form-control" value="{{ user.dob }}">
+          <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top border-light-subtle">
+            <a href="{{ url_for('profile_view') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold">Cancel</a>
+            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm">
+              <i class="bi bi-check2-circle me-1"></i> Save Changes
+            </button>
+          </div>
+        </form>
+
       </div>
     </div>
-
-    <div class="text-center mt-4">
-      <button type="submit" class="btn btn-primary w-100">💾 Save Changes</button>
-    </div>
-  </form>
   </div>
-
-
+</div>
 {% endblock %}

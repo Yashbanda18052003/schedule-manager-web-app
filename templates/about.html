@@ -1,44 +1,101 @@
 {% extends 'base.html' %}
+
 {% block content %}
-<div class="container mt-5 fade-in">
-    <h2 class="text-center mb-5" style="font-weight: 700; color: #3f51b5;">About This App & Me</h2>
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      
+      <!-- Main Card -->
+      <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 mb-4">
+        
+        <!-- Header -->
+        <div class="text-center mb-5">
+          <div class="d-inline-flex align-items-center justify-content-center p-3 rounded-circle bg-primary-subtle text-primary mb-3" style="width: 64px; height: 64px;">
+            <i class="bi bi-info-circle-fill fs-2"></i>
+          </div>
+          <h2 class="fw-bold tracking-tight mb-2">About Schedule Manager</h2>
+          <p class="text-muted">A modern, intelligent task organizer and automated email reminder platform.</p>
+        </div>
 
-    <div class="mb-5">
-        <h4 style="font-weight: 600; color: #00c6ff; border-bottom: 2px solid #00c6ff; display: inline-block; padding-bottom: 5px;">
-            👋 About Me
-        </h4>
-        <p>
-            Hey there, I’m Banda Yash. I'm someone who enjoys building things that help people in simple ways.
-            I love working on small projects like this web app to improve my skills and create something useful.
-        </p>
-        <p>
-            I enjoy learning Python, creating web apps, and I'm also a big fan of anime. Apart from coding, I like experimenting with AI tools and thinking about ways to turn ideas into something real.
-        </p>
-    </div>
-
-    <div class="mb-5">
-        <h4 style="font-weight: 600; color: #00c6ff; border-bottom: 2px solid #00c6ff; display: inline-block; padding-bottom: 5px;">
-            🛠️ About the Schedule Reminder App
-        </h4>
-        <p>
-            This is a simple web app I built to help manage daily schedules. You can add your tasks, set reminders, and edit or delete them anytime.
-            I built it using Flask and Python as part of my learning journey.
-        </p>
-        <p>
-            My goal with this app was to make something clean and easy to use, so you don't forget the things that matter.
-        </p>
-    </div>
-
-    <div class="text-center">
-        <p style="font-weight: 500; color: #555;">Thanks for checking out my app. Hope it helps you stay organized! 😊</p>
-        <p>
-            <a href="https://www.linkedin.com/in/banda-yash-829633259/" target="_blank" style="color: #3f51b5; font-weight: 500;">
-                🔗 Connect with me on LinkedIn
+        <!-- Section 1: Developer Story -->
+        <div class="p-4 rounded-4 bg-light-subtle border border-light-subtle mb-4">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 48px; height: 48px; background: var(--primary-gradient) !important;">
+              BY
+            </div>
+            <div>
+              <h5 class="fw-bold mb-0">Built by Banda Yash</h5>
+              <span class="text-muted small">Python & Full-Stack Developer</span>
+            </div>
+          </div>
+          <p class="text-secondary mb-2" style="line-height: 1.7;">
+            Hey there! I'm <strong>Banda Yash</strong>. I enjoy building intuitive software tools that simplify daily workflows and keep people focused on what truly matters.
+          </p>
+          <p class="text-secondary mb-3" style="line-height: 1.7;">
+            I love working with Python, Flask, modern JavaScript, and AI tools. Apart from engineering web apps, I'm passionate about exploring new technologies, anime, and turning ambitious ideas into reality.
+          </p>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="https://www.linkedin.com/in/banda-yash-829633259/" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+              <i class="bi bi-linkedin me-1"></i> Connect on LinkedIn
             </a>
-        </p>
+            <a href="https://github.com/Yashbanda18052003" target="_blank" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+              <i class="bi bi-github me-1"></i> GitHub Profile
+            </a>
+          </div>
+        </div>
+
+        <!-- Section 2: App Capabilities -->
+        <div class="mb-4">
+          <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-stars text-warning"></i> Key Features & Capabilities
+          </h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="p-3 rounded-3 border border-light-subtle h-100">
+                <div class="fw-semibold text-primary mb-1">
+                  <i class="bi bi-bell-fill me-1"></i> Smart Email Reminders
+                </div>
+                <p class="text-muted small mb-0">Automated background delivery with configurable offsets (15m, 1h, 1 day, or custom).</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 rounded-3 border border-light-subtle h-100">
+                <div class="fw-semibold text-primary mb-1">
+                  <i class="bi bi-calendar-event me-1"></i> Interactive Calendar
+                </div>
+                <p class="text-muted small mb-0">Monthly grid visualization with instant schedule inspection and category color tags.</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 rounded-3 border border-light-subtle h-100">
+                <div class="fw-semibold text-primary mb-1">
+                  <i class="bi bi-graph-up-arrow me-1"></i> Productivity Analytics
+                </div>
+                <p class="text-muted small mb-0">Visual distribution charts, completion rates, and streak tracking to maximize output.</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 rounded-3 border border-light-subtle h-100">
+                <div class="fw-semibold text-primary mb-1">
+                  <i class="bi bi-arrow-repeat me-1"></i> Calendar Sync & Export
+                </div>
+                <p class="text-muted small mb-0">1-click sync to Google Calendar and universal iCalendar (.ics) exports.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer / Back -->
+        <div class="text-center pt-3 border-top border-light-subtle">
+          <p class="text-muted small mb-3">Thanks for checking out the app! Stay organized and keep creating. ✨</p>
+          <a href="{{ url_for('home') }}" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+          </a>
+        </div>
+
+      </div>
+
     </div>
-    <div class="text-center mt-4">
-        <a href="{{ url_for('home') }}" class="btn btn-primary">← Back to Home</a>
-    </div>
+  </div>
 </div>
 {% endblock %}

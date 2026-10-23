@@ -1,19 +1,81 @@
-<!-- templates/login.html -->
 {% extends "base.html" %}
+
 {% block content %}
-<div class="form-container fade-in">
-<form method="POST" action="/login">
-    <h2>LOGIN</h2>
-    <div class="mb-3">
-        <label>Email</label>
-        <input type="email" name="email" class="form-control" required>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <!-- Modern Login Card -->
+      <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 position-relative overflow-hidden">
+        
+        <!-- Top Glow Accent -->
+        <div class="position-absolute top-0 start-0 w-100" style="height: 4px; background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #8b5cf6 100%);"></div>
+
+        <div class="text-center mb-4">
+          <div class="d-inline-flex p-3 rounded-circle bg-primary-subtle text-primary mb-3 shadow-sm">
+            <i class="bi bi-shield-lock-fill fs-3"></i>
+          </div>
+          <h2 class="fw-bold mb-1">Welcome Back</h2>
+          <p class="text-muted small">Sign in to access your schedules and automated reminders</p>
+        </div>
+
+        <form method="POST" action="/login">
+          <!-- Email Input -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold small text-uppercase text-muted">Email Address</label>
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+              <input type="email" name="email" class="form-control border-start-0" placeholder="name@example.com" required autofocus>
+            </div>
+          </div>
+
+          <!-- Password Input -->
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="form-label fw-semibold small text-uppercase text-muted mb-0">Password</label>
+            </div>
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-key"></i></span>
+              <input type="password" name="password" id="loginPassword" class="form-control border-start-0 border-end-0" placeholder="••••••••" required>
+              <button class="btn btn-outline-secondary border-start-0" type="button" onclick="togglePasswordVisibility('loginPassword', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-semibold shadow-sm mb-3">
+            Sign In to Account
+          </button>
+        </form>
+
+        <!-- Quick Demo Hint -->
+        <div class="p-2 rounded-3 bg-light-subtle border border-light-subtle text-center mb-4 small">
+          <span class="text-muted">Test Account: </span>
+          <code class="text-primary fw-bold">bandayash11@gmail.com</code> / <code class="text-muted">yash123</code>
+        </div>
+
+        <div class="text-center pt-3 border-top border-light-subtle">
+          <p class="text-muted small mb-0">Don't have an account? <a href="/signup" class="text-primary fw-bold text-decoration-none">Create free account</a></p>
+        </div>
+
+      </div>
     </div>
-    <div class="mb-3">
-        <label>Password</label>
-        <input type="password" name="password" class="form-control" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Login</button>
-    <p class="mt-3">Don't have an account? <a href="/signup">Signup here</a></p>
-</form>
+  </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function togglePasswordVisibility(id, btn) {
+    const input = document.getElementById(id);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.className = 'bi bi-eye-slash';
+    } else {
+      input.type = 'password';
+      icon.className = 'bi bi-eye';
+    }
+  }
+</script>
 {% endblock %}
