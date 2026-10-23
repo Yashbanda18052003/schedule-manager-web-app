@@ -150,7 +150,7 @@ PlanPulse AI is powered by a high-performance built-in hybrid NLP reasoning engi
   - `1_hour`: 1 hour prior
   - `1_day`: 24 hours prior
   - `1_week`: 7 days prior
-* Live delivery powered by Gmail SMTP (`yash.glsbca21@gmail.com`) with rich HTML styling and duplicate protection flags.
+* Live delivery powered by Gmail SMTP with rich HTML styling and duplicate protection flags.
 
 ### 🎯 Dynamic Priority & Glowing Category Tags
 * **Priority Levels:** 🔴 High, 🟡 Medium, 🟢 Low.
