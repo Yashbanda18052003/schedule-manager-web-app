@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<!-- FullCalendar 6.1.10 CDN -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<style>
+  .fc {
+    font-family: inherit;
+  }
+  .fc-header-toolbar {
+    margin-bottom: 1.5rem !important;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .fc-button-primary {
+    background-color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+    border-radius: 20px !important;
+    padding: 0.375rem 0.85rem !important;
+    font-weight: 500 !important;
+    text-transform: capitalize !important;
+  }
+  .fc-button-primary:hover, .fc-button-primary:focus {
+    opacity: 0.9;
+  }
+  .fc-event {
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: transform 0.15s ease;
+  }
+  .fc-event:hover {
+    transform: scale(1.02);
+  }
+  .calendar-container-card {
+    background: var(--bs-body-bg);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    border: 1px solid var(--bs-border-color);
+  }
+  .category-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom border-light-subtle">
+    <div>
+      <h2 class="fw-bold mb-1 d-flex align-items-center gap-2">
+        <i class="bi bi-calendar-month text-primary"></i> Interactive Calendar
+      </h2>
+      <p class="text-muted small mb-0">Visually explore, track, and sync all your upcoming tasks and scheduled events.</p>
+    </div>
+    <div class="d-flex gap-2 mt-3 mt-md-0">
+      <a href="{{ url_for('add_schedule') }}" class="btn btn-primary rounded-pill px-3 shadow-sm fw-semibold">
+        <i class="bi bi-plus-circle me-1"></i> Add Schedule
+      </a>
+      <a href="{{ url_for('view_schedules') }}" class="btn btn-outline-secondary rounded-pill px-3 fw-semibold">
+        <i class="bi bi-list-task me-1"></i> List View
+      </a>
+    </div>
+  </div>
+
+  <!-- Category Legend -->
+  <div class="d-flex flex-wrap gap-3 align-items-center mb-3 small p-2 bg-light-subtle rounded-3 border border-light-subtle">
+    <span class="fw-bold text-muted me-1">Categories:</span>
+    <span><span class="category-legend-dot me-1" style="background: #3b82f6;"></span> Work</span>
+    <span><span class="category-legend-dot me-1" style="background: #8b5cf6;"></span> Personal</span>
+    <span><span class="category-legend-dot me-1" style="background: #10b981;"></span> Study</span>
+    <span><span class="category-legend-dot me-1" style="background: #ef4444;"></span> Health</span>
+    <span><span class="category-legend-dot me-1" style="background: #f59e0b;"></span> Finance</span>
+    <span><span class="category-legend-dot me-1" style="background: #6366f1;"></span> General</span>
+    <span class="ms-md-auto text-muted"><span class="category-legend-dot me-1" style="background: #94a3b8;"></span> Completed</span>
+  </div>
+
+  <!-- Calendar Card -->
+  <div class="calendar-container-card mb-4">
+    <div id="calendar"></div>
+  </div>
+</div>
+
+<!-- Event Details Modal -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header text-white" id="modalHeader" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);">
+        <div>
+          <span class="badge bg-white text-dark rounded-pill px-2 py-1 mb-1 fw-bold text-uppercase" id="modalCategoryBadge" style="font-size: 0.7rem;">General</span>
+          <h5 class="modal-title fw-bold" id="modalEventTitle">Event Title</h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <!-- Date & Time Box -->
+        <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-light-subtle border border-light-subtle mb-3">
+          <div class="fs-3 text-primary"><i class="bi bi-clock-history"></i></div>
+          <div>
+            <div class="fw-bold" id="modalEventDate">Oct 25, 2026</div>
+            <div class="text-muted small" id="modalEventTime">10:00 AM</div>
+          </div>
+          <div class="ms-auto">
+            <span class="badge rounded-pill px-3 py-2 fw-semibold" id="modalPriorityBadge">Medium</span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-4">
+          <label class="fw-bold text-muted small text-uppercase mb-1">Description / Notes</label>
+          <p class="mb-0 text-break" id="modalEventDescription" style="white-space: pre-wrap; font-size: 0.95rem;">No description provided.</p>
+        </div>
+
+        <!-- Sync Actions -->
+        <label class="fw-bold text-muted small text-uppercase mb-2">Calendar Sync & Export</label>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <a href="#" target="_blank" id="modalGcalBtn" class="btn btn-outline-danger btn-sm rounded-pill px-3 d-flex align-items-center gap-1">
+            <i class="bi bi-google"></i> Add to Google Calendar
+          </a>
+          <a href="#" id="modalIcsBtn" class="btn btn-outline-dark btn-sm rounded-pill px-3 d-flex align-items-center gap-1">
+            <i class="bi bi-download"></i> Download .ics File
+          </a>
+        </div>
+      </div>
+      <div class="modal-footer bg-light-subtle border-top border-light-subtle p-3 d-flex justify-content-between">
+        <!-- Toggle Status Form -->
+        <form id="modalToggleForm" method="POST" action="">
+          <button type="submit" class="btn btn-success btn-sm rounded-pill px-3" id="modalToggleBtn">
+            <i class="bi bi-check2-circle"></i> Mark as Completed
+          </button>
+        </form>
+
+        <div class="d-flex gap-2">
+          <a href="#" id="modalEditBtn" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+            <i class="bi bi-pencil-square"></i> Edit
+          </a>
+          <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const calendarEl = document.getElementById('calendar');
+  const eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
+
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+    },
+    buttonText: {
+      today: 'Today',
+      month: 'Month',
+      week: 'Week',
+      day: 'Day',
+      list: 'List'
+    },
+    events: '/api/schedules',
+    editable: false,
+    navLinks: true,
+    dayMaxEvents: 3,
+    eventTimeFormat: {
+      hour: 'numeric',
+      minute: '2-digit',
+      meridiem: 'short'
+    },
+    eventClick: function(info) {
+      info.jsEvent.preventDefault();
+      const event = info.event;
+      const props = event.extendedProps;
+
+      document.getElementById('modalEventTitle').textContent = event.title;
+      document.getElementById('modalEventDate').textContent = props.date_formatted || event.startStr;
+      document.getElementById('modalEventTime').textContent = props.time_formatted || '';
+      document.getElementById('modalEventDescription').textContent = props.description || 'No description provided.';
+      document.getElementById('modalCategoryBadge').textContent = props.category || 'General';
+
+      // Priority Badge
+      const prioBadge = document.getElementById('modalPriorityBadge');
+      if (props.priority === 'high') {
+        prioBadge.className = 'badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2 fw-semibold';
+        prioBadge.innerHTML = '🔴 High Priority';
+      } else if (props.priority === 'low') {
+        prioBadge.className = 'badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-semibold';
+        prioBadge.innerHTML = '🟢 Low Priority';
+      } else {
+        prioBadge.className = 'badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-2 fw-semibold';
+        prioBadge.innerHTML = '🟡 Medium Priority';
+      }
+
+      // Sync URLs
+      document.getElementById('modalGcalBtn').href = props.gcal_url || '#';
+      document.getElementById('modalIcsBtn').href = props.export_url || '#';
+      document.getElementById('modalEditBtn').href = props.edit_url || '#';
+
+      // Toggle Button
+      const toggleForm = document.getElementById('modalToggleForm');
+      toggleForm.action = `/schedule/${event.id}/toggle-status`;
+      const toggleBtn = document.getElementById('modalToggleBtn');
+      if (props.status === 'completed') {
+        toggleBtn.className = 'btn btn-outline-secondary btn-sm rounded-pill px-3';
+        toggleBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Mark as Pending';
+      } else {
+        toggleBtn.className = 'btn btn-success btn-sm rounded-pill px-3';
+        toggleBtn.innerHTML = '<i class="bi bi-check2-circle"></i> Mark as Completed';
+      }
+
+      eventModal.show();
+    }
+  });
+
+  calendar.render();
+});
+</script>
+{% endblock %}

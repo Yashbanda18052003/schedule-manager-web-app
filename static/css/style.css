@@ -427,3 +427,130 @@ form p a:hover {
     color: #333; /* adjust for dark/light mode */
     font-family: 'Poppins', sans-serif;
 }
+
+/* ==========================================================================
+   ENHANCED MODERN STYLING, DARK/LIGHT THEME, CATEGORY CHIPS
+   ========================================================================== */
+
+:root {
+  --primary-indigo: #4f46e5;
+  --primary-purple: #6366f1;
+}
+
+[data-bs-theme="dark"] body {
+  background: #0f172a !important;
+  color: #f8fafc;
+}
+
+[data-bs-theme="dark"] .card,
+[data-bs-theme="dark"] .metric-card,
+[data-bs-theme="dark"] .chart-card,
+[data-bs-theme="dark"] .calendar-container-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc;
+}
+
+[data-bs-theme="dark"] .bg-light-subtle {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .text-muted {
+  color: #94a3b8 !important;
+}
+
+.custom-navbar {
+  background: rgba(15, 23, 42, 0.88) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.75rem 0;
+}
+
+.logo-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-text {
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.5px;
+}
+
+.text-indigo-gradient {
+  background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-pill-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.4rem 0.85rem !important;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.nav-pill-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff !important;
+}
+
+/* Category Chips */
+.category-chip-work {
+  background: rgba(59, 130, 246, 0.15) !important;
+  color: #2563eb !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+.category-chip-personal {
+  background: rgba(139, 92, 246, 0.15) !important;
+  color: #7c3aed !important;
+  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+}
+.category-chip-study {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #059669 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+.category-chip-health {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #dc2626 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+.category-chip-finance {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #d97706 !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+.category-chip-general {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: #4f46e5 !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+}
+
+/* Schedule Card Hover & Completed Effect */
+.schedule-item-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid var(--bs-border-color) !important;
+}
+
+.schedule-item-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+}
+
+.completed-task-card {
+  opacity: 0.72;
+  background: rgba(241, 245, 249, 0.6) !important;
+}
+
+[data-bs-theme="dark"] .completed-task-card {
+  background: rgba(30, 41, 59, 0.5) !important;
+}

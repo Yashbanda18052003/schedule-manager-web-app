@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  .metric-card {
+    border-radius: 16px;
+    padding: 24px;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .metric-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  }
+  .metric-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+  }
+  .chart-card {
+    background: var(--bs-body-bg);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid var(--bs-border-color);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    height: 100%;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5">
+  <!-- Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom border-light-subtle">
+    <div>
+      <h2 class="fw-bold mb-1 d-flex align-items-center gap-2">
+        <i class="bi bi-graph-up text-primary"></i> Productivity Analytics
+      </h2>
+      <p class="text-muted small mb-0">Measure your consistency, task completion rates, and category distribution.</p>
+    </div>
+    <div class="d-flex gap-2 mt-3 mt-md-0">
+      <a href="{{ url_for('calendar_view') }}" class="btn btn-outline-primary rounded-pill px-3 fw-semibold">
+        <i class="bi bi-calendar3 me-1"></i> Open Calendar
+      </a>
+      <a href="{{ url_for('view_schedules') }}" class="btn btn-primary rounded-pill px-3 shadow-sm fw-semibold">
+        <i class="bi bi-list-task me-1"></i> Manage Tasks
+      </a>
+    </div>
+  </div>
+
+  <!-- Metric Counters Row -->
+  <div class="row g-3 mb-4">
+    <!-- Total Schedules -->
+    <div class="col-sm-6 col-xl-2">
+      <div class="metric-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted small fw-semibold text-uppercase">Total Tasks</span>
+          <div class="metric-icon-box bg-primary-subtle text-primary">
+            <i class="bi bi-calendar-event"></i>
+          </div>
+        </div>
+        <h3 class="fw-bold mb-0">{{ total }}</h3>
+      </div>
+    </div>
+
+    <!-- Completed Tasks -->
+    <div class="col-sm-6 col-xl-2">
+      <div class="metric-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted small fw-semibold text-uppercase">Completed</span>
+          <div class="metric-icon-box bg-success-subtle text-success">
+            <i class="bi bi-check2-all"></i>
+          </div>
+        </div>
+        <h3 class="fw-bold mb-0 text-success">{{ completed }}</h3>
+      </div>
+    </div>
+
+    <!-- Pending Tasks -->
+    <div class="col-sm-6 col-xl-2">
+      <div class="metric-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted small fw-semibold text-uppercase">Pending</span>
+          <div class="metric-icon-box bg-warning-subtle text-warning">
+            <i class="bi bi-hourglass-split"></i>
+          </div>
+        </div>
+        <h3 class="fw-bold mb-0 text-warning">{{ pending }}</h3>
+      </div>
+    </div>
+
+    <!-- Completion Rate -->
+    <div class="col-sm-6 col-xl-2">
+      <div class="metric-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted small fw-semibold text-uppercase">Done Ratio</span>
+          <div class="metric-icon-box bg-info-subtle text-info">
+            <i class="bi bi-pie-chart"></i>
+          </div>
+        </div>
+        <h3 class="fw-bold mb-0 text-info">{{ rate }}%</h3>
+      </div>
+    </div>
+
+    <!-- High Priority Pending -->
+    <div class="col-sm-6 col-xl-2">
+      <div class="metric-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted small fw-semibold text-uppercase">Urgent Left</span>
+          <div class="metric-icon-box bg-danger-subtle text-danger">
+            <i class="bi bi-fire"></i>
+          </div>
+        </div>
+        <h3 class="fw-bold mb-0 text-danger">{{ urgent_count }}</h3>
+      </div>
+    </div>
+
+    <!-- Productivity Streak -->
+    <div class="col-sm-6 col-xl-2">
+      <div class="metric-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted small fw-semibold text-uppercase">Streak</span>
+          <div class="metric-icon-box" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+            <i class="bi bi-lightning-charge-fill"></i>
+          </div>
+        </div>
+        <h3 class="fw-bold mb-0" style="color: #f59e0b;">{{ streak }} <span class="fs-6 fw-normal text-muted">days</span></h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="row g-4 mb-4">
+    <!-- Task Completion Breakdown (Donut) -->
+    <div class="col-lg-4">
+      <div class="chart-card">
+        <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+          <i class="bi bi-pie-chart-fill text-primary"></i> Status Breakdown
+        </h5>
+        <div style="height: 280px; position: relative;">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks by Category (Bar Chart) -->
+    <div class="col-lg-5">
+      <div class="chart-card">
+        <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+          <i class="bi bi-bar-chart-fill text-indigo"></i> Tasks by Category
+        </h5>
+        <div style="height: 280px; position: relative;">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Priority Distribution -->
+    <div class="col-lg-3">
+      <div class="chart-card">
+        <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+          <i class="bi bi-shield-exclamation text-danger"></i> Priority Distribution
+        </h5>
+        <div style="height: 280px; position: relative;">
+          <canvas id="priorityChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Motivational Tips Banner -->
+  <div class="p-4 rounded-4 mb-4" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%); border: 1px solid rgba(99, 102, 241, 0.2);">
+    <div class="d-flex align-items-center gap-3">
+      <div class="fs-2 text-primary"><i class="bi bi-lightbulb-fill"></i></div>
+      <div>
+        <h6 class="fw-bold mb-1">Productivity Insight</h6>
+        <p class="mb-0 text-muted small">
+          {% if rate >= 80 %}
+            🌟 <strong>Outstanding focus!</strong> You have completed {{ rate }}% of your scheduled commitments. Keep up this winning streak!
+          {% elif rate >= 50 %}
+            ⚡ <strong>Solid momentum!</strong> More than half of your scheduled milestones are completed. Tackle high-priority items to push past 80%!
+          {% elif total > 0 %}
+            🎯 <strong>Time to focus!</strong> You have {{ pending }} pending tasks. Break large goals into smaller blocks and mark them off one by one.
+          {% else %}
+            ✨ <strong>Ready to start?</strong> Add your first schedule and set an automated reminder to boost your daily productivity!
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+  const textColor = isDark ? '#94a3b8' : '#64748b';
+  const gridColor = isDark ? '#334155' : '#f1f5f9';
+
+  // 1. Status Donut Chart
+  const statusCtx = document.getElementById('statusChart').getContext('2d');
+  new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Completed', 'Pending'],
+      datasets: [{
+        data: [{{ completed }}, {{ pending }}],
+        backgroundColor: ['#10b981', '#f59e0b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: textColor, padding: 15 }
+        }
+      },
+      cutout: '70%'
+    }
+  });
+
+  // 2. Category Bar Chart
+  const catCtx = document.getElementById('categoryChart').getContext('2d');
+  new Chart(catCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Work', 'Personal', 'Study', 'Health', 'Finance', 'General'],
+      datasets: [{
+        label: 'Tasks',
+        data: [
+          {{ cat_counts.get('work', 0) }},
+          {{ cat_counts.get('personal', 0) }},
+          {{ cat_counts.get('study', 0) }},
+          {{ cat_counts.get('health', 0) }},
+          {{ cat_counts.get('finance', 0) }},
+          {{ cat_counts.get('general', 0) }}
+        ],
+        backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#ef4444', '#f59e0b', '#6366f1'],
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: textColor }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: gridColor },
+          ticks: { color: textColor, stepSize: 1 }
+        }
+      }
+    }
+  });
+
+  // 3. Priority Chart
+  const prioCtx = document.getElementById('priorityChart').getContext('2d');
+  new Chart(prioCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['High', 'Medium', 'Low'],
+      datasets: [{
+        data: [
+          {{ prio_counts.get('high', 0) }},
+          {{ prio_counts.get('medium', 0) }},
+          {{ prio_counts.get('low', 0) }}
+        ],
+        backgroundColor: ['#ef4444', '#f59e0b', '#10b981'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: textColor, padding: 15 }
+        }
+      },
+      cutout: '65%'
+    }
+  });
+});
+</script>
+{% endblock %}

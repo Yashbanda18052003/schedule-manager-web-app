@@ -1,44 +1,170 @@
-<!-- templates/home.html -->
 {% extends "base.html" %}
+
 {% block content %}
-
-<!-- ✅ Wrapper to add spacing and layout adjustment -->
-<div class="home-wrapper container mt-5 text-center">
-
-  <!-- ✅ Greeting for everyone -->
+<div class="container-fluid px-lg-5">
   {% if current_user.is_authenticated %}
-    <h2 class="mb-4 text-success">Welcome, {{ current_user.name }} 👋</h2>
-  {% else %}
-    <h2 class="mb-4">Welcome to Schedule Manager 👋</h2>
-    <p class="text-muted">🔒 Please <a href="/login">login</a> to view and manage your schedules.</p>
-  {% endif %}
+    <!-- Logged In Dashboard Hero -->
+    <div class="p-4 p-md-5 rounded-4 mb-4 text-white position-relative overflow-hidden shadow-sm" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 60%, #818cf8 100%);">
+      <div class="row align-items-center position-relative" style="z-index: 2;">
+        <div class="col-lg-8">
+          <span class="badge bg-white text-primary rounded-pill px-3 py-1 mb-3 fw-bold shadow-sm" style="font-size: 0.8rem;">
+            🚀 Daily Productivity Command Center
+          </span>
+          <h1 class="fw-bold mb-2 display-6">Welcome back, {{ current_user.name }} 👋</h1>
+          <p class="mb-4 opacity-90 lead fs-6" style="max-width: 600px;">
+            You have <strong>{{ pending_count }} pending</strong> schedules. Stay on track with automated reminders and priority deadlines.
+          </p>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('add_schedule') }}" class="btn btn-light text-primary rounded-pill px-4 fw-bold shadow-sm">
+              <i class="bi bi-plus-circle-fill me-1"></i> Add Schedule
+            </a>
+            <a href="{{ url_for('calendar_view') }}" class="btn btn-outline-light rounded-pill px-4 fw-semibold">
+              <i class="bi bi-calendar3 me-1"></i> Open Calendar
+            </a>
+            <a href="{{ url_for('analytics_view') }}" class="btn btn-outline-light rounded-pill px-4 fw-semibold">
+              <i class="bi bi-graph-up me-1"></i> View Analytics
+            </a>
+          </div>
+        </div>
 
-  <!-- ✅ Add Schedule button visible to everyone -->
-  <div class="mt-3 mb-4">
-    <a href="/add" class="btn btn-primary">➕ Add Schedule</a>
-  </div>
-
-  <!-- ✅ Show schedule table ONLY if user is logged in -->
- {% if current_user.is_authenticated %}
-    <div class="container mt-4">
-        <h4 class="mb-3">🔔 Upcoming Schedules</h4>
-        {% if schedules %}
-            {% for s in schedules %}
-                <div class="card mb-3 glass-card">
-                    <div class="card-body">
-                        <h5>{{ s.title }}</h5>
-                        <p>{{ s.date.strftime('%d %b %Y') }} at {{ s.time.strftime('%I:%M %p') }}</p>
-                        <p class="text-muted">{{ s.description or 'No description' }}</p>
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p class="text-muted">No upcoming schedules.</p>
-        {% endif %}
+        <!-- Quick Summary Stats on the Hero -->
+        <div class="col-lg-4 mt-4 mt-lg-0">
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="p-3 rounded-3 text-center" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);">
+                <div class="fs-4 fw-bold">{{ total_count }}</div>
+                <div class="small opacity-75">Total Tasks</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 rounded-3 text-center" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);">
+                <div class="fs-4 fw-bold">{{ completed_count }}</div>
+                <div class="small opacity-75">Completed</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-{% endif %}
 
+    <!-- Upcoming Tasks Section -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold mb-0 d-flex align-items-center gap-2">
+        <i class="bi bi-bell-fill text-warning"></i> Next Upcoming Tasks
+      </h4>
+      <a href="{{ url_for('view_schedules') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
+        View All ({{ total_count }}) →
+      </a>
+    </div>
 
-</div> <!-- End .home-wrapper -->
+    {% if schedules %}
+      <div class="row g-3 mb-5">
+        {% for s in schedules %}
+          <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-3 position-relative">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge rounded-pill px-2 py-1 small category-chip-{{ s.category or 'general' }}">
+                  {{ (s.category or 'general') | capitalize }}
+                </span>
+                {% if s.priority == 'high' %}
+                  <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small">🔴 High</span>
+                {% elif s.priority == 'low' %}
+                  <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1 small">🟢 Low</span>
+                {% else %}
+                  <span class="badge bg-warning-subtle text-warning rounded-pill px-2 py-1 small">🟡 Medium</span>
+                {% endif %}
+              </div>
 
+              <h6 class="fw-bold mb-1 text-truncate" title="{{ s.title }}">{{ s.title }}</h6>
+              <p class="text-muted small mb-2 text-truncate" style="font-size: 0.8rem;">
+                {{ s.description or 'No notes' }}
+              </p>
+
+              <div class="small text-muted mb-3">
+                <div><i class="bi bi-calendar-event me-1 text-primary"></i> {{ s.date.strftime('%d %b %Y') }}</div>
+                <div><i class="bi bi-clock me-1 text-primary"></i> {{ s.time.strftime('%I:%M %p') }}</div>
+              </div>
+
+              <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top border-light-subtle">
+                <form action="{{ url_for('toggle_schedule_status', schedule_id=s.id) }}" method="POST" class="m-0 p-0">
+                  <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                    <i class="bi bi-check2"></i> Complete
+                  </button>
+                </form>
+
+                <a href="{{ url_for('update_schedule', schedule_id=s.id) }}" class="btn btn-sm btn-link text-muted p-0 text-decoration-none" title="Edit">
+                  <i class="bi bi-pencil-square"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center py-5 my-4 bg-light-subtle rounded-4 border border-light-subtle">
+        <div class="fs-1 text-muted mb-2"><i class="bi bi-check2-circle text-success"></i></div>
+        <h5 class="fw-bold">All caught up!</h5>
+        <p class="text-muted small mb-3">You don't have any pending upcoming schedules right now.</p>
+        <a href="{{ url_for('add_schedule') }}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold">
+          <i class="bi bi-plus-circle me-1"></i> Schedule a Task
+        </a>
+      </div>
+    {% endif %}
+
+  {% else %}
+    <!-- Public Landing Hero -->
+    <div class="py-5 text-center my-4">
+      <div class="col-lg-8 mx-auto">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 mb-3 fw-semibold">
+          ⏰ Smart Task Scheduling & Automated Reminders
+        </span>
+        <h1 class="display-4 fw-extrabold mb-3">Master Your Time with <span class="text-indigo-gradient">Schedule Manager</span></h1>
+        <p class="lead text-muted mb-4 fs-5" style="max-width: 650px; margin: 0 auto;">
+          Plan events, categorize commitments, set automated email alerts, sync with Google Calendar, and analyze your productivity streaks—all in one place.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+          <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg rounded-pill px-4 fw-bold shadow-sm">
+            Create Free Account
+          </a>
+          <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg rounded-pill px-4 fw-semibold">
+            Sign In
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Grid -->
+    <div class="row g-4 my-4">
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
+          <div class="d-inline-flex p-3 rounded-circle bg-primary-subtle text-primary mx-auto mb-3 fs-3">
+            <i class="bi bi-bell-fill"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Automated Email Alerts</h5>
+          <p class="text-muted small mb-0">Choose customized notification intervals (10 mins, 1 hour, 1 day, or 1 week before) delivered straight to your inbox.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
+          <div class="d-inline-flex p-3 rounded-circle bg-success-subtle text-success mx-auto mb-3 fs-3">
+            <i class="bi bi-calendar3"></i>
+          </div>
+          <h5 class="fw-bold mb-2">FullCalendar & Sync</h5>
+          <p class="text-muted small mb-0">Interactive visual month, week, and day calendars with 1-click sync to Google Calendar and `.ics` download.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
+          <div class="d-inline-flex p-3 rounded-circle bg-warning-subtle text-warning mx-auto mb-3 fs-3">
+            <i class="bi bi-graph-up-arrow"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Productivity Analytics</h5>
+          <p class="text-muted small mb-0">Measure consistency with active completion streaks, priority filters, and visual Chart.js distribution charts.</p>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
 {% endblock %}
