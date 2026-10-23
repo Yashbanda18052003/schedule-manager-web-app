@@ -500,3 +500,25 @@ form {
   color: var(--text-main) !important;
   box-shadow: var(--card-shadow) !important;
 }
+
+/* === In-Input Password Toggle Button (Border-Free) === */
+.password-toggle-btn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--text-muted) !important;
+  cursor: pointer;
+  z-index: 5;
+  padding: 0 !important;
+  line-height: 1;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.password-toggle-btn:hover,
+.password-toggle-btn:focus {
+  color: #38bdf8 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: translateY(-50%) scale(1.12);
+}

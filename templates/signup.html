@@ -40,11 +40,13 @@
           <!-- Password -->
           <div class="mb-4">
             <label class="form-label fw-semibold small text-uppercase text-muted">Password</label>
-            <div class="input-group">
-              <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-key"></i></span>
-              <input type="password" name="password" id="signupPassword" class="form-control border-start-0 border-end-0" placeholder="Choose a strong password" required minlength="4">
-              <button class="btn btn-outline-secondary border-start-0" type="button" onclick="togglePasswordVisibility('signupPassword', this)">
-                <i class="bi bi-eye"></i>
+            <div class="position-relative">
+              <div class="input-group">
+                <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-key"></i></span>
+                <input type="password" name="password" id="signupPassword" class="form-control border-start-0 pe-5" placeholder="Choose a strong password" required minlength="4">
+              </div>
+              <button class="btn border-0 p-0 position-absolute end-0 top-50 translate-middle-y me-3 password-toggle-btn" type="button" onclick="togglePasswordVisibility('signupPassword', this)" title="Show or hide password">
+                <i class="bi bi-eye fs-5"></i>
               </button>
             </div>
           </div>
@@ -72,10 +74,10 @@
     const icon = btn.querySelector('i');
     if (input.type === 'password') {
       input.type = 'text';
-      icon.className = 'bi bi-eye-slash';
+      icon.className = 'bi bi-eye-slash fs-5';
     } else {
       input.type = 'password';
-      icon.className = 'bi bi-eye';
+      icon.className = 'bi bi-eye fs-5';
     }
   }
 </script>
