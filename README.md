@@ -82,7 +82,7 @@ A verified demonstration user is available out-of-the-box:
 
 | Role | Email Address | Password | Capabilities |
 | :--- | :--- | :--- | :--- |
-| **Demo User** | `bandayash11@gmail.com` | `yash123` | Full access to AI Studio, schedules backlog, FullCalendar, Chart.js analytics, email reminders, and profile controls |
+| **Demo User** | `demo@planpulse.ai` | `yash123` | Full access to AI Studio, schedules backlog, FullCalendar, Chart.js analytics, email reminders, and profile controls |
 | **New User** | *(Register via `/signup`)* | *(Your password)* | Instant personal dashboard with automated database migration |
 
 ---
