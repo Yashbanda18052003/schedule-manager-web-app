@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Schedule Manager — Smart Productivity & Event Planner</title>
+  <title>PlanPulse AI — Intelligent Schedule & Productivity Platform</title>
   
   <!-- Early Theme Init to Prevent Flash -->
   <script>
@@ -35,9 +35,9 @@
     <!-- Brand -->
     <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('home') }}">
       <div class="logo-box">
-        <i class="bi bi-calendar-check-fill text-white fs-5"></i>
+        <i class="bi bi-lightning-charge-fill text-white fs-5"></i>
       </div>
-      <span class="brand-text">Schedule<span class="text-indigo-gradient">Manager</span></span>
+      <span class="brand-text">Plan<span class="text-indigo-gradient">Pulse AI</span></span>
     </a>
 
     <!-- Mobile Toggler -->
@@ -52,6 +52,11 @@
         <li class="nav-item">
           <a class="nav-link nav-pill-link" href="{{ url_for('home') }}">
             <i class="bi bi-house-door me-1"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link nav-pill-link" href="{{ url_for('ai_studio') }}">
+            <i class="bi bi-stars text-info me-1"></i> AI Studio
           </a>
         </li>
         <li class="nav-item">
@@ -153,7 +158,7 @@
       <a href="{{ url_for('about') }}" class="text-decoration-none text-muted">About Us</a>
       <a href="{{ url_for('contact') }}" class="text-decoration-none text-muted">Contact Us</a>
     </div>
-    <p class="text-muted small mb-0">© 2026 <strong>Schedule Manager</strong>. Crafted for peak personal productivity.</p>
+    <p class="text-muted small mb-0">© 2026 <strong>PlanPulse AI</strong>. Next-Gen Intelligent Schedule & Productivity Platform.</p>
   </div>
 </footer>
 

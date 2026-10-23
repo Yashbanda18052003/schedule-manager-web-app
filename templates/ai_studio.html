@@ -1,0 +1,629 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<style>
+  .ai-tab-btn {
+    border-radius: 12px;
+    font-weight: 600;
+    padding: 0.65rem 1.25rem;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+  }
+  .ai-tab-btn:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .ai-tab-btn.active {
+    background: rgba(99, 102, 241, 0.15) !important;
+    color: #38bdf8 !important;
+    border-color: rgba(99, 102, 241, 0.4) !important;
+  }
+  .prompt-pill {
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    transition: all 0.15s ease;
+  }
+  .prompt-pill:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.4);
+    transform: translateY(-1px);
+  }
+  .ai-result-box {
+    background: var(--surface-card-subtle);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 1.5rem;
+  }
+  .conflict-alert-card {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 16px;
+    padding: 1.25rem;
+  }
+  .coach-msg-bubble {
+    background: var(--surface-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.25rem;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5">
+
+  <!-- Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-light-subtle">
+    <div>
+      <div class="d-inline-flex align-items-center gap-2 hero-tag rounded-pill px-3 py-1 mb-2">
+        <i class="bi bi-stars text-info"></i>
+        <span>INTELLIGENT TIME-MANAGEMENT SUITE</span>
+      </div>
+      <h2 class="fw-extrabold mb-1 d-flex align-items-center gap-2">
+        <span>Plan<span class="text-indigo-gradient">Pulse AI</span> Studio</span>
+      </h2>
+      <p class="text-muted small mb-0">Natural language scheduling, goal decomposition, conflict detection, and personalized AI coaching.</p>
+    </div>
+    <div class="d-flex gap-2 mt-3 mt-md-0">
+      <a href="{{ url_for('home') }}" class="btn btn-outline-secondary rounded-pill px-3 fw-semibold">
+        <i class="bi bi-house-door me-1"></i> Dashboard
+      </a>
+      <a href="{{ url_for('view_schedules') }}" class="btn btn-primary rounded-pill px-3 shadow-sm fw-semibold">
+        <i class="bi bi-card-checklist me-1"></i> My Schedules
+      </a>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <ul class="nav nav-pills gap-2 mb-4" id="aiStudioTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link ai-tab-btn active" id="tab-nlp-btn" data-bs-toggle="pill" data-bs-target="#tab-nlp" type="button" role="tab">
+        <i class="bi bi-lightning-charge-fill me-1 text-warning"></i> Natural Language Quick-Add
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link ai-tab-btn" id="tab-goals-btn" data-bs-toggle="pill" data-bs-target="#tab-goals" type="button" role="tab">
+        <i class="bi bi-diagram-3-fill me-1 text-info"></i> Goal & Milestone Decomposer
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link ai-tab-btn" id="tab-coach-btn" data-bs-toggle="pill" data-bs-target="#tab-coach" type="button" role="tab">
+        <i class="bi bi-robot me-1 text-primary"></i> Daily Briefing & AI Coach
+      </button>
+    </li>
+  </ul>
+
+  <!-- Tab Contents -->
+  <div class="tab-content" id="aiStudioTabContent">
+
+    <!-- ==================== TAB 1: NLP QUICK-ADD ==================== -->
+    <div class="tab-pane fade show active" id="tab-nlp" role="tabpanel">
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <div class="card border-0 p-4 shadow-sm h-100">
+            <h5 class="fw-bold mb-2 d-flex align-items-center gap-2">
+              <i class="bi bi-magic text-info fs-5"></i> Enter Natural Language Task
+            </h5>
+            <p class="text-muted small mb-3">
+              Type naturally in plain English. PlanPulse AI will automatically extract the event title, date, time, category, priority, and reminder offset.
+            </p>
+
+            <div class="mb-3">
+              <textarea id="nlpInput" class="form-control" rows="4" placeholder="e.g. Client presentation rehearsal on Friday at 3:30 PM with high priority in work category..."></textarea>
+            </div>
+
+            <!-- Quick Suggestion Pills -->
+            <div class="mb-4">
+              <span class="text-muted small fw-semibold d-block mb-2 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Click to Try Suggestions:</span>
+              <div class="d-flex flex-wrap gap-2">
+                <span class="prompt-pill" onclick="fillPrompt(this.innerText)">Strategy meeting with client on Friday at 3:30 PM high priority work category</span>
+                <span class="prompt-pill" onclick="fillPrompt(this.innerText)">Doctor annual health checkup tomorrow at 10 AM health category</span>
+                <span class="prompt-pill" onclick="fillPrompt(this.innerText)">Python exam revision this Sunday at 2 PM study category</span>
+                <span class="prompt-pill" onclick="fillPrompt(this.innerText)">Pay utility & internet bill in 3 days at 11 AM finance category</span>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" id="btnParseNlp" onclick="parseNaturalLanguage()">
+                <i class="bi bi-sparkles me-1"></i> Parse with AI
+              </button>
+              <button class="btn btn-outline-secondary rounded-pill px-3" onclick="document.getElementById('nlpInput').value=''; document.getElementById('nlpPreviewBox').style.display='none';">
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Parsed Preview Column -->
+        <div class="col-lg-5">
+          <div class="card border-0 p-4 shadow-sm h-100" id="nlpPreviewContainer">
+            <h5 class="fw-bold mb-2 d-flex align-items-center gap-2">
+              <i class="bi bi-check2-circle text-success fs-5"></i> AI Schedule Preview
+            </h5>
+            <p class="text-muted small mb-3">Review the extracted fields before saving to your calendar.</p>
+
+            <div id="nlpPreviewBox" class="ai-result-box" style="display: none;">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge rounded-pill px-3 py-1" id="prevCategory">Work</span>
+                <span class="badge rounded-pill px-3 py-1" id="prevPriority">High</span>
+              </div>
+
+              <h5 class="fw-bold mb-2 text-info" id="prevTitle">Title</h5>
+              <p class="text-muted small mb-3" id="prevDescription" style="font-size: 0.85rem;"></p>
+
+              <div class="p-3 rounded-3 mb-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color);">
+                <div class="row g-2 small">
+                  <div class="col-6">
+                    <span class="text-muted d-block" style="font-size: 0.72rem; text-transform: uppercase;">Date</span>
+                    <strong class="text-main" id="prevDate">2026-10-24</strong>
+                  </div>
+                  <div class="col-6">
+                    <span class="text-muted d-block" style="font-size: 0.72rem; text-transform: uppercase;">Time</span>
+                    <strong class="text-main" id="prevTime">10:00 AM</strong>
+                  </div>
+                  <div class="col-12 mt-2 pt-2 border-top border-light-subtle">
+                    <span class="text-muted d-block" style="font-size: 0.72rem; text-transform: uppercase;">Smart Reminder</span>
+                    <span class="badge rounded-pill bg-primary-subtle text-primary" id="prevReminder">1 Day Before</span>
+                  </div>
+                </div>
+              </div>
+
+              <button class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow-sm" id="btnSaveParsed" onclick="saveParsedSchedule()">
+                <i class="bi bi-calendar-plus-fill me-1"></i> Add to My Schedule
+              </button>
+            </div>
+
+            <div id="nlpEmptyPlaceholder" class="text-center py-5 text-muted">
+              <i class="bi bi-input-cursor-text fs-1 opacity-25 d-block mb-2"></i>
+              <p class="small mb-0">Type a task on the left and click <strong>"Parse with AI"</strong> to preview details here.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TAB 2: GOAL DECOMPOSER ==================== -->
+    <div class="tab-pane fade" id="tab-goals" role="tabpanel">
+      <div class="card border-0 p-4 shadow-sm mb-4">
+        <h5 class="fw-bold mb-2 d-flex align-items-center gap-2">
+          <i class="bi bi-diagram-3-fill text-info fs-5"></i> Break Down Large Goals into Actionable Milestones
+        </h5>
+        <p class="text-muted small mb-4">
+          Provide your major project or learning goal. PlanPulse AI will structure it into 4 sequential milestones with recommended dates, categories, and priorities.
+        </p>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold text-muted text-uppercase">Goal or Project Title</label>
+            <input type="text" id="goalInput" class="form-control" placeholder="e.g. Launch AI SaaS Portfolio, Pass Python Exam, Half-Marathon Training...">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted text-uppercase">Target Deadline</label>
+            <input type="date" id="goalDeadline" class="form-control">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted text-uppercase">Primary Domain</label>
+            <select id="goalCategory" class="form-select">
+              <option value="work">💼 Work / Project</option>
+              <option value="study">📚 Study / Exam</option>
+              <option value="health">🏃 Health / Fitness</option>
+              <option value="finance">💰 Finance / Tax</option>
+              <option value="personal">👤 Personal</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" onclick="decomposeGoal()">
+            <i class="bi bi-puzzle-fill me-1"></i> Decompose Goal with AI
+          </button>
+        </div>
+      </div>
+
+      <!-- Milestones Output Container -->
+      <div id="milestonesContainer" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+            <i class="bi bi-check2-all text-success"></i> Generated Milestones (<span id="milestonesCount">4</span>)
+          </h5>
+          <button class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" onclick="saveAllMilestones()">
+            <i class="bi bi-calendar-check-fill me-1"></i> Add All Milestones to Schedule
+          </button>
+        </div>
+
+        <div class="row g-3" id="milestonesRow">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TAB 3: DAILY BRIEFING & AI COACH ==================== -->
+    <div class="tab-pane fade" id="tab-coach" role="tabpanel">
+      <div class="row g-4">
+        <!-- Daily Executive Briefing -->
+        <div class="col-lg-6">
+          <div class="card border-0 p-4 shadow-sm mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-journal-text text-primary fs-5"></i> Executive Daily Briefing
+              </h5>
+              <span class="badge rounded-pill bg-info-subtle text-info px-3 py-1">
+                {{ briefing.energy_level }}
+              </span>
+            </div>
+
+            <h4 class="fw-bold text-info mb-2">{{ briefing.headline }}</h4>
+            <p class="text-muted small mb-4" style="line-height: 1.6;">
+              {{ briefing.assessment }}
+            </p>
+
+            <div class="p-3 rounded-4 bg-light-subtle border border-light-subtle mb-4">
+              <div class="row text-center g-2">
+                <div class="col-4">
+                  <div class="fs-4 fw-bold text-main">{{ briefing.today_count }}</div>
+                  <div class="text-muted small" style="font-size: 0.72rem; text-transform: uppercase;">Tasks Today</div>
+                </div>
+                <div class="col-4">
+                  <div class="fs-4 fw-bold text-warning">{{ briefing.pending_today_count }}</div>
+                  <div class="text-muted small" style="font-size: 0.72rem; text-transform: uppercase;">Pending</div>
+                </div>
+                <div class="col-4">
+                  <div class="fs-4 fw-bold text-danger">{{ briefing.high_prio_count }}</div>
+                  <div class="text-muted small" style="font-size: 0.72rem; text-transform: uppercase;">High Priority</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Intelligent Recommendations -->
+            <h6 class="fw-bold small text-uppercase text-muted mb-2">AI Strategic Recommendations:</h6>
+            <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
+              {% for tip in briefing.tips %}
+                <li class="d-flex align-items-start gap-2">
+                  <i class="bi bi-arrow-right-circle-fill text-info mt-1"></i>
+                  <span>{{ tip | safe }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <!-- Schedule Conflicts Scanner Card -->
+          <div class="card border-0 p-4 shadow-sm">
+            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+              <i class="bi bi-exclamation-triangle-fill text-warning fs-5"></i> Schedule Conflict Scanner
+            </h5>
+
+            {% if conflicts %}
+              <div class="d-flex flex-column gap-3">
+                {% for c in conflicts %}
+                  <div class="conflict-alert-card">
+                    <div class="d-flex align-items-center gap-2 text-warning fw-bold small mb-1">
+                      <i class="bi bi-clock-history"></i> {{ c.date }} at {{ c.time_1 }}
+                    </div>
+                    <div class="fw-bold text-main mb-1">{{ c.message }}</div>
+                    <p class="text-muted small mb-2" style="font-size: 0.8rem;">
+                      💡 <strong>Recommended Fix:</strong> {{ c.recommended_fix }}
+                    </p>
+                    <a href="{{ url_for('update_schedule', schedule_id=c.schedule_id_2) }}" class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1">
+                      <i class="bi bi-pencil-square me-1"></i> Adjust Schedule
+                    </a>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="p-3 rounded-4 bg-light-subtle border border-light-subtle text-center">
+                <i class="bi bi-shield-check text-success fs-2 d-block mb-1"></i>
+                <div class="fw-bold text-success">Zero Conflicts Detected</div>
+                <div class="text-muted small">All your events have clean spacing and comfortable transition windows.</div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Interactive AI Productivity Coach -->
+        <div class="col-lg-6">
+          <div class="card border-0 p-4 shadow-sm h-100 d-flex flex-column">
+            <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom border-light-subtle">
+              <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 48px; height: 48px; background: var(--primary-gradient) !important;">
+                <i class="bi bi-robot fs-4"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-0">PlanPulse AI Coach</h5>
+                <span class="text-muted small">Personalized time-management & focus consultant</span>
+              </div>
+            </div>
+
+            <!-- Quick Coach Questions -->
+            <div class="mb-3">
+              <span class="text-muted small fw-semibold d-block mb-2 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Quick Coach Queries:</span>
+              <div class="d-flex flex-wrap gap-2">
+                <span class="prompt-pill" onclick="askCoachPrompt('How should I prioritize today?')">How should I prioritize today?</span>
+                <span class="prompt-pill" onclick="askCoachPrompt('How to prevent afternoon burnout?')">Prevent afternoon burnout</span>
+                <span class="prompt-pill" onclick="askCoachPrompt('Optimal study & memory technique?')">Study technique</span>
+                <span class="prompt-pill" onclick="askCoachPrompt('Give me motivation to tackle pending tasks')">Give me motivation</span>
+              </div>
+            </div>
+
+            <!-- Conversation Display Area -->
+            <div class="flex-grow-1 mb-3 overflow-auto" id="coachChatContainer" style="max-height: 380px;">
+              <div class="coach-msg-bubble mb-3">
+                <div class="fw-bold text-info mb-1 d-flex align-items-center gap-2">
+                  <i class="bi bi-stars"></i> PlanPulse AI Coach
+                </div>
+                <p class="mb-0 text-muted small" style="line-height: 1.6;">
+                  Hello {{ current_user.name }}! I am your AI Productivity Coach. I analyze your schedules, priorities, and streaks to give you actionable advice. What's on your mind today?
+                </p>
+              </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="input-group mt-auto">
+              <input type="text" id="coachInput" class="form-control" placeholder="Ask your coach anything about time management..." onkeydown="if(event.key==='Enter') sendCoachQuestion()">
+              <button class="btn btn-primary px-4 fw-bold" onclick="sendCoachQuestion()">
+                <i class="bi bi-send-fill"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let currentParsedTask = null;
+  let currentGeneratedMilestones = [];
+
+  // Helper to fill prompt textarea
+  function fillPrompt(txt) {
+    document.getElementById('nlpInput').value = txt;
+    parseNaturalLanguage();
+  }
+
+  // 1. NLP Parse function
+  async function parseNaturalLanguage() {
+    const prompt = document.getElementById('nlpInput').value.trim();
+    if (!prompt) {
+      alert("Please enter a task description to parse.");
+      return;
+    }
+
+    const btn = document.getElementById('btnParseNlp');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Parsing...';
+
+    try {
+      const res = await fetch('/api/ai/parse-task', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({prompt})
+      });
+      const data = await res.json();
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-sparkles me-1"></i> Parse with AI';
+
+      if (data.success && data.task) {
+        currentParsedTask = data.task;
+        renderParsedPreview(data.task);
+      } else {
+        alert(data.error || 'Failed to parse task.');
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-sparkles me-1"></i> Parse with AI';
+      alert('Error communicating with AI service: ' + err);
+    }
+  }
+
+  function renderParsedPreview(task) {
+    document.getElementById('nlpEmptyPlaceholder').style.display = 'none';
+    const box = document.getElementById('nlpPreviewBox');
+    box.style.display = 'block';
+
+    document.getElementById('prevTitle').textContent = task.title;
+    document.getElementById('prevDescription').textContent = task.description;
+    document.getElementById('prevDate').textContent = task.date;
+    document.getElementById('prevTime').textContent = task.time;
+
+    // Badges
+    const catBadge = document.getElementById('prevCategory');
+    catBadge.className = `badge rounded-pill px-3 py-1 category-chip-${task.category}`;
+    catBadge.textContent = task.category.toUpperCase();
+
+    const prioBadge = document.getElementById('prevPriority');
+    prioBadge.className = `badge rounded-pill px-3 py-1 badge-priority-${task.priority}`;
+    prioBadge.textContent = task.priority.toUpperCase() + ' PRIORITY';
+
+    const offsetMap = {
+      '10_min': '10 Mins Before',
+      '1_hour': '1 Hour Before',
+      '1_day': '1 Day Before',
+      '1_week': '1 Week Before'
+    };
+    document.getElementById('prevReminder').textContent = offsetMap[task.reminder_offset] || '1 Day Before';
+  }
+
+  // Save parsed schedule
+  async function saveParsedSchedule() {
+    if (!currentParsedTask) return;
+    const btn = document.getElementById('btnSaveParsed');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving to Schedule...';
+
+    try {
+      const res = await fetch('/api/ai/save-task', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(currentParsedTask)
+      });
+      const data = await res.json();
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-calendar-plus-fill me-1"></i> Add to My Schedule';
+
+      if (data.success) {
+        alert("🎉 " + data.message);
+        window.location.href = "{{ url_for('view_schedules') }}";
+      } else {
+        alert("Error: " + data.error);
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-calendar-plus-fill me-1"></i> Add to My Schedule';
+      alert('Error saving task: ' + err);
+    }
+  }
+
+  // 2. Goal Decomposer function
+  async function decomposeGoal() {
+    const goal = document.getElementById('goalInput').value.trim();
+    const deadline = document.getElementById('goalDeadline').value;
+    const category = document.getElementById('goalCategory').value;
+
+    if (!goal) {
+      alert("Please enter a goal title.");
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/ai/breakdown-goal', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({goal, deadline, category})
+      });
+      const data = await res.json();
+
+      if (data.success && data.milestones) {
+        currentGeneratedMilestones = data.milestones;
+        renderMilestones(data.milestones);
+      } else {
+        alert("Error: " + data.error);
+      }
+    } catch (err) {
+      alert('Error decomposing goal: ' + err);
+    }
+  }
+
+  function renderMilestones(milestones) {
+    const container = document.getElementById('milestonesContainer');
+    const row = document.getElementById('milestonesRow');
+    row.innerHTML = '';
+    document.getElementById('milestonesCount').textContent = milestones.length;
+
+    milestones.forEach((m, idx) => {
+      const col = document.createElement('div');
+      col.className = 'col-md-6 col-lg-3';
+      col.innerHTML = `
+        <div class="card border-0 p-3 h-100 shadow-sm" style="background: var(--surface-card-subtle);">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge rounded-pill px-2 py-1 small category-chip-${m.category}">${m.category.toUpperCase()}</span>
+            <span class="badge rounded-pill px-2 py-1 small badge-priority-${m.priority}">${m.priority.toUpperCase()}</span>
+          </div>
+          <h6 class="fw-bold mb-1 text-info">#${idx+1} ${m.title}</h6>
+          <p class="text-muted small mb-3" style="font-size: 0.8rem;">${m.description}</p>
+          <div class="mt-auto pt-2 border-top border-light-subtle small text-muted">
+            <div><i class="bi bi-calendar3 me-1 text-primary"></i> ${m.date}</div>
+            <div><i class="bi bi-clock me-1 text-primary"></i> ${m.time}</div>
+          </div>
+        </div>
+      `;
+      row.appendChild(col);
+    });
+
+    container.style.display = 'block';
+  }
+
+  // Save all milestones
+  async function saveAllMilestones() {
+    if (!currentGeneratedMilestones.length) return;
+    if (!confirm(`Confirm creating ${currentGeneratedMilestones.length} milestones in your schedule?`)) return;
+
+    try {
+      const res = await fetch('/api/ai/save-milestones', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({milestones: currentGeneratedMilestones})
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("🎉 " + data.message);
+        window.location.href = "{{ url_for('view_schedules') }}";
+      } else {
+        alert("Error: " + data.error);
+      }
+    } catch (err) {
+      alert("Error saving milestones: " + err);
+    }
+  }
+
+  // 3. AI Coach chat
+  function askCoachPrompt(txt) {
+    document.getElementById('coachInput').value = txt;
+    sendCoachQuestion();
+  }
+
+  async function sendCoachQuestion() {
+    const input = document.getElementById('coachInput');
+    const question = input.value.trim();
+    if (!question) return;
+
+    const chatContainer = document.getElementById('coachChatContainer');
+
+    // Append user question bubble
+    const userBubble = document.createElement('div');
+    userBubble.className = 'p-3 rounded-4 mb-2 ms-auto';
+    userBubble.style.maxWidth = '85%';
+    userBubble.style.background = 'rgba(99, 102, 241, 0.18)';
+    userBubble.style.border = '1px solid rgba(99, 102, 241, 0.35)';
+    userBubble.innerHTML = `<strong class="text-info d-block small mb-1">You</strong><span class="small">${question}</span>`;
+    chatContainer.appendChild(userBubble);
+    input.value = '';
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    // Loading indicator
+    const loadingBubble = document.createElement('div');
+    loadingBubble.className = 'coach-msg-bubble mb-2';
+    loadingBubble.id = 'coachLoading';
+    loadingBubble.innerHTML = `<span class="spinner-border spinner-border-sm text-info me-2"></span><span class="text-muted small">PlanPulse AI is formulating advice...</span>`;
+    chatContainer.appendChild(loadingBubble);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    try {
+      const res = await fetch('/api/ai/coach-chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question})
+      });
+      const data = await res.json();
+      const loader = document.getElementById('coachLoading');
+      if (loader) loader.remove();
+
+      const aiBubble = document.createElement('div');
+      aiBubble.className = 'coach-msg-bubble mb-2';
+      aiBubble.innerHTML = `
+        <div class="fw-bold text-info mb-1 d-flex align-items-center gap-2">
+          <i class="bi bi-stars"></i> PlanPulse AI Coach
+        </div>
+        <div class="small" style="line-height: 1.6; white-space: pre-line;">${data.answer || 'Keep up the great work!'}</div>
+      `;
+      chatContainer.appendChild(aiBubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    } catch (err) {
+      const loader = document.getElementById('coachLoading');
+      if (loader) loader.remove();
+      alert("Error: " + err);
+    }
+  }
+</script>
+{% endblock %}

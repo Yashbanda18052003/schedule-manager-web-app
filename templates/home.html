@@ -8,15 +8,18 @@
       <div class="row align-items-center position-relative" style="z-index: 2;">
         <div class="col-lg-8">
           <div class="d-inline-flex align-items-center gap-2 hero-tag rounded-pill px-3 py-1 mb-3">
-            <i class="bi bi-rocket-takeoff-fill text-info"></i>
-            <span>DAILY PRODUCTIVITY COMMAND CENTER</span>
+            <i class="bi bi-stars text-info"></i>
+            <span>PLANPULSE AI DAILY COMMAND CENTER</span>
           </div>
           <h1 class="hero-title display-6 mb-2">Welcome back, {{ current_user.name }} 👋</h1>
           <p class="text-muted lead fs-6 mb-4" style="max-width: 600px; color: #94a3b8 !important;">
-            You have <strong class="text-info">{{ pending_count }} pending</strong> schedules. Stay on track with automated reminders and priority deadlines.
+            You have <strong class="text-info">{{ pending_count }} pending</strong> schedules. Stay on track with automated reminders, AI parsing, and priority deadlines.
           </p>
           <div class="d-flex flex-wrap gap-2">
-            <a href="{{ url_for('add_schedule') }}" class="btn hero-btn-primary rounded-pill px-4 py-2">
+            <a href="{{ url_for('ai_studio') }}" class="btn hero-btn-primary rounded-pill px-4 py-2">
+              <i class="bi bi-stars me-1"></i> Open AI Studio
+            </a>
+            <a href="{{ url_for('add_schedule') }}" class="btn hero-btn-frosted rounded-pill px-4 py-2">
               <i class="bi bi-plus-circle-fill me-1"></i> Add Schedule
             </a>
             <a href="{{ url_for('calendar_view') }}" class="btn hero-btn-frosted rounded-pill px-4 py-2">
@@ -46,6 +49,35 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- AI Schedule Conflict Alert Banner (If Any Detected) -->
+    {% if conflicts %}
+      <div class="alert alert-warning border-0 rounded-4 shadow-sm p-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35) !important;">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-exclamation-triangle-fill text-warning fs-4"></i>
+          <div>
+            <strong class="text-warning d-block">PlanPulse AI Conflict Alert:</strong>
+            <span class="small text-main">{{ conflicts[0].message }}</span>
+          </div>
+        </div>
+        <a href="{{ url_for('ai_studio') }}#tab-coach" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold">
+          <i class="bi bi-magic me-1"></i> Review Conflicts in AI Studio
+        </a>
+      </div>
+    {% endif %}
+
+    <!-- AI Natural Language Quick Add Card -->
+    <div class="card border-0 p-3 mb-4 shadow-sm rounded-4" style="background: var(--surface-card); border: 1px solid var(--border-color) !important;">
+      <form onsubmit="event.preventDefault(); quickAddWithAI();" class="d-flex flex-column flex-md-row gap-2 align-items-stretch">
+        <div class="input-group">
+          <span class="input-group-text bg-transparent border-end-0 text-info"><i class="bi bi-stars"></i></span>
+          <input type="text" id="quickNlpInput" class="form-control border-start-0" placeholder="Type naturally to add with AI: e.g. Strategy review tomorrow at 3pm high priority work category...">
+        </div>
+        <button type="submit" id="quickNlpBtn" class="btn btn-primary rounded-pill px-4 fw-bold text-nowrap shadow-sm">
+          <i class="bi bi-lightning-charge-fill me-1"></i> Quick Add with AI
+        </button>
+      </form>
     </div>
 
     <!-- Upcoming Tasks Section Header -->
@@ -109,11 +141,16 @@
         </div>
         <h4 class="fw-bold mb-1">All caught up!</h4>
         <p class="text-muted small mb-4" style="max-width: 440px; margin: 0 auto; color: #94a3b8 !important;">
-          You don't have any pending upcoming schedules right now. Stay productive or schedule a new event below.
+          You don't have any pending upcoming schedules right now. Use PlanPulse AI Studio to plan your next milestone.
         </p>
-        <a href="{{ url_for('add_schedule') }}" class="btn hero-btn-primary rounded-pill px-4 py-2 shadow-sm fw-bold">
-          <i class="bi bi-plus-circle me-1"></i> Schedule a Task
-        </a>
+        <div class="d-flex justify-content-center gap-2">
+          <a href="{{ url_for('ai_studio') }}" class="btn hero-btn-primary rounded-pill px-4 py-2 shadow-sm fw-bold">
+            <i class="bi bi-stars me-1"></i> Plan with AI
+          </a>
+          <a href="{{ url_for('add_schedule') }}" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold">
+            <i class="bi bi-plus-circle me-1"></i> Manual Add
+          </a>
+        </div>
       </div>
     {% endif %}
 
@@ -122,15 +159,15 @@
     <div class="py-5 text-center my-4">
       <div class="col-lg-8 mx-auto">
         <span class="badge rounded-pill px-3 py-1 mb-3 fw-bold hero-tag">
-          ⏰ SMART TASK SCHEDULING & AUTOMATED REMINDERS
+          ⚡ NEXT-GEN AI-POWERED PRODUCTIVITY & SCHEDULE MANAGER
         </span>
-        <h1 class="display-4 fw-extrabold mb-3">Master Your Time with <span class="text-indigo-gradient">Schedule Manager</span></h1>
+        <h1 class="display-4 fw-extrabold mb-3">Master Your Time with <span class="text-indigo-gradient">PlanPulse AI</span></h1>
         <p class="lead text-muted mb-4 fs-5" style="max-width: 650px; margin: 0 auto;">
-          Plan events, categorize commitments, set automated email alerts, sync with Google Calendar, and analyze your productivity streaks—all in one place.
+          Natural language task scheduling, automated email reminders, milestone decomposition, conflict detection, and productivity analytics—all in one place.
         </p>
         <div class="d-flex justify-content-center gap-3">
           <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg rounded-pill px-4 fw-bold shadow-sm">
-            Create Free Account
+            Get Started Free
           </a>
           <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg rounded-pill px-4 fw-semibold">
             Sign In
@@ -144,33 +181,92 @@
       <div class="col-md-4">
         <div class="card h-100 border-0 p-4 text-center">
           <div class="d-inline-flex p-3 rounded-circle bg-primary-subtle text-primary mx-auto mb-3 fs-3">
-            <i class="bi bi-bell-fill"></i>
+            <i class="bi bi-stars"></i>
           </div>
-          <h5 class="fw-bold mb-2">Automated Email Alerts</h5>
-          <p class="text-muted small mb-0">Choose customized notification intervals (15 mins, 1 hour, 1 day, or 1 week before) delivered straight to your inbox.</p>
+          <h5 class="fw-bold mb-2">PlanPulse AI Studio</h5>
+          <p class="text-muted small mb-0">Speak or type plain English to auto-extract date, time, priority, and category, or break large goals into sequential milestones.</p>
         </div>
       </div>
 
       <div class="col-md-4">
         <div class="card h-100 border-0 p-4 text-center">
           <div class="d-inline-flex p-3 rounded-circle bg-info-subtle text-info mx-auto mb-3 fs-3">
-            <i class="bi bi-calendar3"></i>
+            <i class="bi bi-bell-fill"></i>
           </div>
-          <h5 class="fw-bold mb-2">FullCalendar & Sync</h5>
-          <p class="text-muted small mb-0">Interactive visual month, week, and day calendars with 1-click sync to Google Calendar and `.ics` download.</p>
+          <h5 class="fw-bold mb-2">Automated Email Alerts</h5>
+          <p class="text-muted small mb-0">Multi-interval background delivery with Gmail SMTP (10m, 1h, 1 day, or 1 week before) directly to your inbox.</p>
         </div>
       </div>
 
       <div class="col-md-4">
         <div class="card h-100 border-0 p-4 text-center">
           <div class="d-inline-flex p-3 rounded-circle bg-success-subtle text-success mx-auto mb-3 fs-3">
-            <i class="bi bi-graph-up-arrow"></i>
+            <i class="bi bi-calendar3"></i>
           </div>
-          <h5 class="fw-bold mb-2">Productivity Analytics</h5>
-          <p class="text-muted small mb-0">Measure consistency with active completion streaks, priority filters, and visual Chart.js distribution charts.</p>
+          <h5 class="fw-bold mb-2">Calendar & Sync</h5>
+          <p class="text-muted small mb-0">FullCalendar 6 visual grid with 1-click sync to Google Calendar and universal `.ics` download.</p>
         </div>
       </div>
     </div>
   {% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+{% if current_user.is_authenticated %}
+<script>
+  async function quickAddWithAI() {
+    const input = document.getElementById('quickNlpInput');
+    const prompt = input.value.trim();
+    if (!prompt) {
+      alert("Please enter a task in plain English.");
+      return;
+    }
+
+    const btn = document.getElementById('quickNlpBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> AI Parsing...';
+
+    try {
+      // Step 1: Parse
+      const parseRes = await fetch('/api/ai/parse-task', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({prompt})
+      });
+      const parseData = await parseRes.json();
+
+      if (!parseData.success || !parseData.task) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-lightning-charge-fill me-1"></i> Quick Add with AI';
+        alert(parseData.error || "Failed to parse task with AI.");
+        return;
+      }
+
+      // Step 2: Auto Save
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Scheduling...';
+      const saveRes = await fetch('/api/ai/save-task', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(parseData.task)
+      });
+      const saveData = await saveRes.json();
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-lightning-charge-fill me-1"></i> Quick Add with AI';
+
+      if (saveData.success) {
+        alert(`✨ Successfully scheduled: "${parseData.task.title}" on ${parseData.task.date} at ${parseData.task.time} (${parseData.task.category.toUpperCase()} - ${parseData.task.priority.toUpperCase()} priority)!`);
+        window.location.reload();
+      } else {
+        alert(saveData.error || "Failed to save schedule.");
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-lightning-charge-fill me-1"></i> Quick Add with AI';
+      alert("Error: " + err);
+    }
+  }
+</script>
+{% endif %}
 {% endblock %}

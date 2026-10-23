@@ -8,6 +8,7 @@ from flask_mail import Mail, Message
 from flask_apscheduler import APScheduler
 import os
 import urllib.parse
+import ai_engine
 
 try:
     from dotenv import load_dotenv
@@ -119,11 +120,11 @@ def send_reminder_email(user_id, schedule_id):
         p_text = priority_labels.get(schedule.priority, '🟡 Medium Priority')
         c_text = category_labels.get(schedule.category, '📌 General')
 
-        subject = f"⏰ Schedule Alert: '{schedule.title}' [{p_text.split()[0]}]"
+        subject = f"⏰ PlanPulse AI Alert: '{schedule.title}' [{p_text.split()[0]}]"
 
         plain_body = f"""Hi {user.name},
 
-This is an automated schedule reminder from Schedule Manager:
+This is an automated reminder from PlanPulse AI:
 
 📌 Title: {schedule.title}
 📅 Date: {schedule.date.strftime('%d %B %Y')}
@@ -133,36 +134,36 @@ This is an automated schedule reminder from Schedule Manager:
 📝 Description: {schedule.description or 'No description provided.'}
 
 -----
-This is an automated reminder from Schedule Manager Web App.
+PlanPulse AI — Intelligent Schedule & Productivity Platform.
 Please do not reply to this email."""
 
         html_body = f"""
         <!DOCTYPE html>
         <html>
             <head><meta charset="UTF-8"></head>
-            <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
-                <div style="max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-                    <div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); padding: 24px; color: #ffffff;">
-                        <h2 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700;">⏰ Upcoming Event Reminder</h2>
-                        <p style="margin: 0; opacity: 0.9; font-size: 14px;">Your scheduled task is coming up!</p>
+            <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0e1a; margin: 0; padding: 24px; color: #f1f5f9;">
+                <div style="max-width: 580px; margin: 0 auto; background: #121829; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);">
+                    <div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%); padding: 24px; color: #ffffff;">
+                        <h2 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 800;">⚡ PlanPulse AI Schedule Alert</h2>
+                        <p style="margin: 0; opacity: 0.9; font-size: 14px;">Your upcoming event is approaching!</p>
                     </div>
                     <div style="padding: 24px;">
-                        <p style="font-size: 15px; margin-top: 0;">Hi <strong>{user.name}</strong>,</p>
-                        <p style="font-size: 14px; color: #475569;">Here are the details for your upcoming schedule:</p>
+                        <p style="font-size: 15px; margin-top: 0; color: #f1f5f9;">Hi <strong>{user.name}</strong>,</p>
+                        <p style="font-size: 14px; color: #94a3b8;">PlanPulse AI has flagged the following commitment for you:</p>
                         
-                        <div style="background: #f1f5f9; border-left: 4px solid #4f46e5; border-radius: 8px; padding: 16px; margin: 20px 0;">
-                            <h3 style="margin: 0 0 10px 0; color: #1e293b; font-size: 17px;">📌 {schedule.title}</h3>
-                            <p style="margin: 6px 0; font-size: 14px;"><strong>📅 Date:</strong> {schedule.date.strftime('%d %B %Y')}</p>
-                            <p style="margin: 6px 0; font-size: 14px;"><strong>🕒 Time:</strong> {schedule.time.strftime('%I:%M %p')}</p>
-                            <p style="margin: 6px 0; font-size: 14px;"><strong>🎯 Priority:</strong> {p_text}</p>
-                            <p style="margin: 6px 0; font-size: 14px;"><strong>📁 Category:</strong> {c_text}</p>
-                            <p style="margin: 6px 0; font-size: 14px;"><strong>📝 Description:</strong> {schedule.description or 'No description provided.'}</p>
+                        <div style="background: #172138; border-left: 4px solid #6366f1; border-radius: 10px; padding: 18px; margin: 20px 0; border: 1px solid rgba(255, 255, 255, 0.06);">
+                            <h3 style="margin: 0 0 12px 0; color: #38bdf8; font-size: 18px;">📌 {schedule.title}</h3>
+                            <p style="margin: 6px 0; font-size: 14px; color: #e2e8f0;"><strong>📅 Date:</strong> {schedule.date.strftime('%d %B %Y')}</p>
+                            <p style="margin: 6px 0; font-size: 14px; color: #e2e8f0;"><strong>🕒 Time:</strong> {schedule.time.strftime('%I:%M %p')}</p>
+                            <p style="margin: 6px 0; font-size: 14px; color: #e2e8f0;"><strong>🎯 Priority:</strong> {p_text}</p>
+                            <p style="margin: 6px 0; font-size: 14px; color: #e2e8f0;"><strong>📁 Category:</strong> {c_text}</p>
+                            <p style="margin: 6px 0; font-size: 14px; color: #94a3b8;"><strong>📝 Notes:</strong> {schedule.description or 'No description provided.'}</p>
                         </div>
 
-                        <p style="font-size: 13px; color: #64748b; margin-bottom: 0;">Stay organized and have a productive day ahead!</p>
+                        <p style="font-size: 13px; color: #94a3b8; margin-bottom: 0;">Stay focused, productive, and conquer your day!</p>
                     </div>
-                    <div style="background: #f8fafc; padding: 14px 24px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center;">
-                        Automated reminder sent by <strong>Schedule Manager Web App</strong>.
+                    <div style="background: #0d1222; padding: 14px 24px; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 12px; color: #64748b; text-align: center;">
+                        Automated smart alert delivered by <strong>PlanPulse AI</strong>.
                     </div>
                 </div>
             </body>
@@ -171,7 +172,7 @@ Please do not reply to this email."""
 
         try:
             msg = Message(subject,
-                          sender=("Schedule Manager App", app.config['MAIL_USERNAME']),
+                          sender=("PlanPulse AI", app.config['MAIL_USERNAME']),
                           recipients=[user.email],
                           body=plain_body,
                           html=html_body,
@@ -192,12 +193,19 @@ def home():
         pending_count = sum(1 for s in schedules if s.status != 'completed')
         completed_count = total_count - pending_count
         upcoming = [s for s in schedules if s.status != 'completed'][:4]
+        
+        # AI Engine Daily Briefing & Conflict Detection
+        briefing = ai_engine.generate_daily_briefing(schedules, user_name=current_user.name)
+        conflicts = ai_engine.detect_schedule_conflicts(schedules)
+
         return render_template(
             'home.html',
             schedules=upcoming,
             total_count=total_count,
             pending_count=pending_count,
-            completed_count=completed_count
+            completed_count=completed_count,
+            briefing=briefing,
+            conflicts=conflicts
         )
     return render_template('home.html')
 
@@ -619,6 +627,129 @@ def analytics_view():
         cat_counts=cat_counts,
         prio_counts=prio_counts
     )
+
+
+# -------- PlanPulse AI Studio & Endpoints --------
+@app.route('/ai/studio')
+@login_required
+def ai_studio():
+    schedules = Schedule.query.filter_by(user_id=current_user.id).order_by(Schedule.date, Schedule.time).all()
+    briefing = ai_engine.generate_daily_briefing(schedules, user_name=current_user.name)
+    conflicts = ai_engine.detect_schedule_conflicts(schedules)
+    return render_template('ai_studio.html', briefing=briefing, conflicts=conflicts, total_schedules=len(schedules))
+
+
+@app.route('/api/ai/parse-task', methods=['POST'])
+@login_required
+def api_ai_parse_task():
+    data = request.get_json() or {}
+    prompt = data.get('prompt', '')
+    if not prompt or not prompt.strip():
+        return jsonify({'error': 'Please provide a task description'}), 400
+    parsed = ai_engine.parse_natural_language_schedule(prompt)
+    if not parsed:
+        return jsonify({'error': 'Unable to parse schedule from text'}), 400
+    return jsonify({'success': True, 'task': parsed})
+
+
+@app.route('/api/ai/save-task', methods=['POST'])
+@login_required
+def api_ai_save_task():
+    data = request.get_json() or {}
+    title = data.get('title', '').strip()
+    if not title:
+        return jsonify({'error': 'Task title is required'}), 400
+    
+    try:
+        t_date = datetime.strptime(data.get('date'), '%Y-%m-%d').date()
+        t_time = datetime.strptime(data.get('time'), '%H:%M').time()
+    except Exception as e:
+        return jsonify({'error': f'Invalid date or time format: {e}'}), 400
+        
+    category = data.get('category', 'general')
+    priority = data.get('priority', 'medium')
+    reminder_offset = data.get('reminder_offset', '1_day')
+    description = data.get('description', '')
+
+    new_schedule = Schedule(
+        title=title,
+        description=description,
+        date=t_date,
+        time=t_time,
+        reminder=True,
+        priority=priority,
+        category=category,
+        reminder_offset=reminder_offset,
+        status='pending',
+        user_id=current_user.id
+    )
+    db.session.add(new_schedule)
+    db.session.commit()
+
+    schedule_reminder_job(new_schedule.id, current_user.id, t_date, t_time, reminder_offset)
+    return jsonify({'success': True, 'schedule_id': new_schedule.id, 'message': f"Task '{title}' scheduled successfully!"})
+
+
+@app.route('/api/ai/breakdown-goal', methods=['POST'])
+@login_required
+def api_ai_breakdown_goal():
+    data = request.get_json() or {}
+    goal = data.get('goal', '').strip()
+    deadline = data.get('deadline')
+    category = data.get('category', 'work')
+    if not goal:
+        return jsonify({'error': 'Goal title is required'}), 400
+    
+    milestones = ai_engine.breakdown_goal_into_schedules(goal, target_deadline=deadline, category=category)
+    return jsonify({'success': True, 'milestones': milestones})
+
+
+@app.route('/api/ai/save-milestones', methods=['POST'])
+@login_required
+def api_ai_save_milestones():
+    data = request.get_json() or {}
+    milestones = data.get('milestones', [])
+    if not milestones:
+        return jsonify({'error': 'No milestones provided'}), 400
+    
+    created_count = 0
+    for m in milestones:
+        try:
+            m_date = datetime.strptime(m.get('date'), '%Y-%m-%d').date()
+            m_time = datetime.strptime(m.get('time'), '%H:%M').time()
+            new_s = Schedule(
+                title=m.get('title'),
+                description=m.get('description', ''),
+                date=m_date,
+                time=m_time,
+                reminder=True,
+                priority=m.get('priority', 'medium'),
+                category=m.get('category', 'work'),
+                reminder_offset=m.get('reminder_offset', '1_day'),
+                status='pending',
+                user_id=current_user.id
+            )
+            db.session.add(new_s)
+            db.session.commit()
+            schedule_reminder_job(new_s.id, current_user.id, m_date, m_time, m.get('reminder_offset', '1_day'))
+            created_count += 1
+        except Exception as e:
+            print(f"[AI ERROR] Failed to save milestone: {e}")
+            continue
+
+    return jsonify({'success': True, 'count': created_count, 'message': f"Successfully created {created_count} milestones in your schedule!"})
+
+
+@app.route('/api/ai/coach-chat', methods=['POST'])
+@login_required
+def api_ai_coach_chat():
+    data = request.get_json() or {}
+    question = data.get('question', '').strip()
+    if not question:
+        return jsonify({'error': 'Question cannot be empty'}), 400
+    schedules = Schedule.query.filter_by(user_id=current_user.id).all()
+    answer = ai_engine.ask_productivity_coach(question, schedules, user_name=current_user.name)
+    return jsonify({'success': True, 'answer': answer})
 
 
 # -------- Info Pages --------
